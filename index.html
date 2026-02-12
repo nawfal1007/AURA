@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA APPAREL | Premium Sustainable Fashion Indonesia</title>
+    <meta name="description" content="Indonesian sustainable clothing brand. Handcrafted, organic, and ethical fashion from Java.">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        aura: {
+                            base: '#F9F7F2',    /* "Rice Paper" Off-White */
+                            dark: '#15302a',    /* "Borneo" Deep Green */
+                            charcoal: '#2D2D2D',
+                            accent: '#C5A065',  /* "Rattan" Gold */
+                            sand: '#E6E2DD',
+                            terra: '#B08E77',
+                            error: '#9B2C2C',
+                            success: '#2F855A'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Lato', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                        serif: ['Playfair Display', 'ui-serif', 'Georgia', 'serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
+                        'slide-in-right': 'slideInRight 0.5s ease-out forwards',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
+                        slideInRight: {
+                            '0%': { transform: 'translateX(100%)' },
+                            '100%': { transform: 'translateX(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Anti-FOUC (Flash of Unstyled Content) */
+        [x-cloak] { display: none !important; }
+        
+        /* Glassmorphism Utilities */
+        .glass-nav {
+            background: rgba(249, 247, 242, 0.90);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(21, 48, 42, 0.05);
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        /* Typography Enhancements */
+        .text-shadow-sm { text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        
+        /* Scrollbar Hiding */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Smooth Anchor Offsets */
+        html { scroll-padding-top: 100px; }
+    </style>
+</head>
+
+<body class="bg-aura-base text-aura-charcoal antialiased selection:bg-aura-dark selection:text-aura-accent"
+      x-data="shopApp()">
+
+    <div class="fixed top-24 right-5 z-50 flex flex-col gap-2 pointer-events-none">
+        <template x-for="toast in toasts" :key="toast.id">
+            <div x-show="toast.visible" 
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-x-8"
+                 x-transition:enter-end="opacity-100 translate-x-0"
+                 x-transition:leave="transition ease-in duration-300"
+                 x-transition:leave-start="opacity-100 translate-x-0"
+                 x-transition:leave-end="opacity-0 translate-x-8"
+                 class="bg-aura-dark text-white px-6 py-4 rounded shadow-2xl flex items-center gap-4 min-w-[300px] pointer-events-auto border-l-4 border-aura-accent">
+                <i class="ph-fill ph-check-circle text-aura-accent text-xl"></i>
+                <div>
+                    <h4 class="font-bold text-xs uppercase tracking-wider">Added to Bag</h4>
+                    <p class="text-xs text-white/80" x-text="toast.message"></p>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    <header class="fixed top-0 w-full z-40 transition-all duration-500 ease-in-out"
+            :class="scrolled ? 'glass-nav text-aura-dark' : 'bg-transparent py-8 text-white'">
+        
+        <div class="container mx-auto px-6 flex justify-between items-center">
+            
+            <div class="flex items-center gap-4 w-1/3">
+                <button @click="mobileMenuOpen = true" class="lg:hidden hover:text-aura-accent transition p-2 -ml-2">
+                    <i class="ph ph-list text-2xl"></i>
+                </button>
+                <button class="hidden lg:flex items-center gap-2 hover:text-aura-accent transition group">
+                    <i class="ph ph-magnifying-glass text-xl"></i>
+                    <span class="text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0">Search</span>
+                </button>
+            </div>
+
+            <div class="w-1/3 text-center">
+                <a href="#" class="inline-block group">
+                    <h1 class="text-2xl md:text-3xl font-serif font-bold tracking-[0.2em] uppercase transition-colors group-hover:text-aura-accent">
+                        Aura<span class="text-aura-accent group-hover:text-current">.</span>
+                    </h1>
+                </a>
+            </div>
+
+            <div class="flex items-center justify-end gap-6 w-1/3">
+                <nav class="hidden lg:flex gap-8 text-[11px] font-bold tracking-widest uppercase">
+                    <a href="#shop" class="hover:text-aura-accent transition relative group">
+                        Shop
+                        <span class="absolute -bottom-2 left-0 w-0 h-px bg-aura-accent transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+                    <a href="#about" class="hover:text-aura-accent transition relative group">
+                        Sustainability
+                        <span class="absolute -bottom-2 left-0 w-0 h-px bg-aura-accent transition-all duration-300 group-hover:w-full"></span>
+                    </a>
+                </nav>
+
+                <div class="h-4 w-px bg-current opacity-20 hidden lg:block"></div>
+
+                <a href="loginpage.html" class="hidden lg:block hover:text-aura-accent transition">
+                    <i class="ph ph-user text-xl"></i>
+                </a>
+                
+                <button @click="cartOpen = true" class="relative hover:text-aura-accent transition p-1">
+                    <i class="ph ph-tote text-xl"></i>
+                    <span x-show="cartCount > 0" 
+                          x-cloak
+                          x-transition.scale
+                          class="absolute -top-1 -right-1 bg-aura-accent text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-sm"
+                          x-text="cartCount"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <section class="relative h-screen w-full overflow-hidden flex items-center justify-center">
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=2000" 
+                 alt="Aura Apparel Hero" 
+                 class="w-full h-full object-cover object-center animate-pulse-slow scale-105">
+            <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/70"></div>
+        </div>
+
+        <div class="relative z-10 text-center text-white px-4 max-w-5xl mt-10">
+            <div class="overflow-hidden mb-6">
+                <span class="inline-block text-aura-accent font-bold tracking-[0.3em] uppercase text-[10px] md:text-xs animate-fade-in-up border border-aura-accent/30 px-4 py-2 rounded-full glass-panel">
+                    Summer Collection 2026
+                </span>
+            </div>
+            
+            <h2 class="text-5xl md:text-7xl lg:text-9xl font-serif font-medium leading-[0.9] mb-8 text-shadow-sm animate-fade-in-up" style="animation-delay: 0.2s;">
+                Ethical Luxury <br>
+                <span class="italic font-light text-white/90">From Java.</span>
+            </h2>
+            
+            <p class="text-lg md:text-xl font-light text-white/80 max-w-xl mx-auto mb-12 animate-fade-in-up leading-relaxed" style="animation-delay: 0.4s;">
+                Handcrafted using 100% organic fibers and natural plant dyes. <br class="hidden md:block">Designed for the conscious minimalist.
+            </p>
+
+            <div class="flex flex-col sm:flex-row gap-5 justify-center animate-fade-in-up" style="animation-delay: 0.6s;">
+                <a href="#shop" class="bg-white text-aura-dark px-12 py-4 uppercase text-xs font-bold tracking-widest hover:bg-aura-accent hover:text-white transition duration-300 shadow-xl rounded-sm">
+                    Shop Collection
+                </a>
+                <a href="#about" class="glass-panel text-white px-12 py-4 uppercase text-xs font-bold tracking-widest hover:bg-white hover:text-aura-dark transition duration-300 rounded-sm">
+                    Our Story
+                </a>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 text-white animate-bounce cursor-pointer opacity-70 hover:opacity-100 transition">
+            <i class="ph ph-arrow-down text-2xl"></i>
+        </div>
+    </section>
+
+    <div class="bg-aura-dark text-white py-6 overflow-hidden border-b border-white/5 relative z-20">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div class="flex flex-col md:flex-row items-center justify-center gap-3 opacity-70 hover:opacity-100 transition duration-300 group">
+                    <i class="ph ph-globe-hemisphere-east text-2xl text-aura-accent group-hover:scale-110 transition"></i> 
+                    <span class="text-[10px] uppercase tracking-[0.2em] font-bold">Free Shipping Java</span>
+                </div>
+                <div class="flex flex-col md:flex-row items-center justify-center gap-3 opacity-70 hover:opacity-100 transition duration-300 group">
+                    <i class="ph ph-plant text-2xl text-aura-accent group-hover:scale-110 transition"></i> 
+                    <span class="text-[10px] uppercase tracking-[0.2em] font-bold">100% Organic</span>
+                </div>
+                <div class="flex flex-col md:flex-row items-center justify-center gap-3 opacity-70 hover:opacity-100 transition duration-300 group">
+                    <i class="ph ph-hand-heart text-2xl text-aura-accent group-hover:scale-110 transition"></i> 
+                    <span class="text-[10px] uppercase tracking-[0.2em] font-bold">Fair Trade</span>
+                </div>
+                <div class="flex flex-col md:flex-row items-center justify-center gap-3 opacity-70 hover:opacity-100 transition duration-300 group">
+                    <i class="ph ph-arrow-counter-clockwise text-2xl text-aura-accent group-hover:scale-110 transition"></i> 
+                    <span class="text-[10px] uppercase tracking-[0.2em] font-bold">30-Day Returns</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main id="shop" class="bg-aura-base pt-24 pb-32">
+        <div class="container mx-auto px-6">
+            
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 border-b border-aura-dark/10 pb-8">
+                <div>
+                    <h2 class="text-4xl md:text-5xl font-serif text-aura-dark mb-4">The Essentials</h2>
+                    <p class="text-aura-charcoal/60 max-w-md font-light">Timeless pieces designed to be worn on repeat. Built to last, made to love.</p>
+                </div>
+                <div class="mt-6 md:mt-0">
+                    <span class="text-aura-accent font-bold uppercase tracking-widest text-xs border-b border-aura-accent pb-1">
+                        New Arrivals
+                    </span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
+                <template x-for="product in products" :key="product.id">
+                    <div class="group relative">
+                        <div class="relative overflow-hidden bg-gray-200 aspect-[3/4] mb-6">
+                            <img :src="product.image" :alt="product.name" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                            
+                            <div class="absolute top-4 left-4 flex flex-col gap-2">
+                                <span class="bg-white/95 backdrop-blur text-aura-dark text-[10px] font-bold uppercase tracking-widest px-3 py-1 shadow-sm" x-text="product.badge"></span>
+                                <span x-show="product.new" class="bg-aura-dark text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 w-max shadow-sm">New</span>
+                            </div>
+
+                            <div class="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/80 to-transparent">
+                                <div class="bg-white p-4 shadow-lg">
+                                    <p class="text-[10px] uppercase font-bold text-gray-400 mb-2">Select Size</p>
+                                    <div class="flex justify-between gap-2 mb-3">
+                                        <template x-for="size in ['S', 'M', 'L']">
+                                            <button @click="addToCart(product, size)" 
+                                                    class="flex-1 border border-gray-200 hover:border-aura-dark hover:bg-aura-dark hover:text-white py-2 text-xs font-bold transition">
+                                                <span x-text="size"></span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-serif text-lg text-aura-dark group-hover:text-aura-accent transition-colors cursor-pointer" x-text="product.name"></h3>
+                                <p class="text-[11px] text-gray-500 mt-1 uppercase tracking-wide" x-text="product.category"></p>
+                            </div>
+                            <span class="font-bold text-aura-dark text-sm font-serif" x-text="formatMoney(product.price)"></span>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="mt-20 text-center">
+                <button class="inline-block border-b-2 border-aura-dark pb-1 text-xs font-bold uppercase tracking-widest hover:text-aura-accent hover:border-aura-accent transition duration-300">
+                    View All Products
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <section id="about" class="py-24 bg-white border-t border-aura-dark/5">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                
+                <div class="order-2 md:order-1">
+                    <span class="text-aura-accent uppercase tracking-widest text-[10px] font-bold mb-4 block flex items-center gap-2">
+                        <span class="w-8 h-px bg-aura-accent"></span> Our Philosophy
+                    </span>
+                    <h2 class="text-4xl md:text-5xl font-serif text-aura-dark mb-6 leading-tight">Slow Fashion, <br>Deep Roots.</h2>
+                    <p class="text-gray-600 leading-relaxed mb-8 font-light text-lg">
+                        At AURA, we believe that true style should not cost the Earth. We partner with local artisans in Central Java to source ethical cotton and plant-based dyes. Every piece is a testament to the rich textile heritage of Indonesia.
+                    </p>
+                    
+                    <div class="grid grid-cols-2 gap-8 mt-8 border-t border-gray-100 pt-8">
+                        <div class="flex flex-col gap-3">
+                            <div class="w-12 h-12 bg-aura-base rounded-full flex items-center justify-center text-aura-dark">
+                                <i class="ph-fill ph-leaf text-2xl"></i>
+                            </div>
+                            <h4 class="font-bold text-xs uppercase tracking-wide text-aura-dark">Biodegradable</h4>
+                            <p class="text-xs text-gray-500 leading-relaxed">Materials that return to the earth without harm, closing the loop.</p>
+                        </div>
+                        <div class="flex flex-col gap-3">
+                            <div class="w-12 h-12 bg-aura-base rounded-full flex items-center justify-center text-aura-dark">
+                                <i class="ph-fill ph-hands-praying text-2xl"></i>
+                            </div>
+                            <h4 class="font-bold text-xs uppercase tracking-wide text-aura-dark">Fair Wage</h4>
+                            <p class="text-xs text-gray-500 leading-relaxed">Supporting local families with dignity and safe working conditions.</p>
+                        </div>
+                    </div>
+
+                    <a href="#" class="inline-flex items-center gap-2 mt-12 text-aura-dark text-xs font-bold uppercase tracking-widest hover:gap-4 transition-all duration-300 group">
+                        Read Impact Report 
+                        <i class="ph ph-arrow-right group-hover:text-aura-accent"></i>
+                    </a>
+                </div>
+
+                <div class="order-1 md:order-2 relative">
+                    <div class="absolute -top-4 -left-4 w-full h-full border border-aura-accent/30 z-0"></div>
+                    <div class="grid grid-cols-2 gap-4 relative z-10">
+                        <img src="https://images.unsplash.com/photo-1606512398555-4670068565b9?q=80&w=1000" class="w-full h-80 object-cover mt-12 shadow-lg" alt="Fabric detail">
+                        <img src="https://images.unsplash.com/photo-1575954751790-951b1442c55e?q=80&w=1000" class="w-full h-80 object-cover shadow-lg" alt="Woman in field">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 bg-aura-dark text-white border-t border-white/5 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full opacity-[0.03] pointer-events-none" 
+             style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');">
+        </div>
+
+        <div class="container mx-auto px-6 max-w-3xl text-center relative z-10">
+            <i class="ph ph-star-four text-4xl text-aura-accent mb-6 inline-block animate-pulse"></i>
+            <h3 class="text-4xl md:text-5xl font-serif mb-6">Join the Inner Circle</h3>
+            <p class="text-white/60 font-light mb-12 text-lg">
+                Unlock early access to new collections and enjoy <span class="text-white font-bold border-b border-aura-accent">10% off</span> your first order.
+            </p>
+            
+            <div class="bg-white/5 p-8 md:p-12 rounded-lg border border-white/10 backdrop-blur-sm shadow-2xl">
+                
+                <form class="flex flex-col sm:flex-row gap-4 mb-8" 
+                      @submit.prevent="alert('Thank you for subscribing! Check your email for the code.')">
+                    
+                    <div class="flex-1 relative group">
+                        <i class="ph ph-envelope absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-aura-accent transition"></i>
+                        <input type="email" 
+                               x-model="newsletterEmail"
+                               placeholder="Enter your email address..." 
+                               required
+                               class="w-full bg-black/30 border border-white/20 pl-12 pr-4 py-4 focus:outline-none focus:border-aura-accent focus:bg-black/50 transition text-white placeholder-white/40 rounded-sm">
+                    </div>
+                    
+                    <button type="submit" 
+                            class="bg-aura-accent text-aura-dark px-10 py-4 font-bold uppercase text-xs tracking-widest hover:bg-white transition whitespace-nowrap rounded-sm shadow-lg hover:shadow-aura-accent/20">
+                        Subscribe
+                    </button>
+                </form>
+                
+                <div class="relative flex py-2 items-center mb-8">
+                    <div class="flex-grow border-t border-white/10"></div>
+                    <span class="flex-shrink-0 mx-4 text-[10px] text-white/40 uppercase tracking-widest">Or proceed with account</span>
+                    <div class="flex-grow border-t border-white/10"></div>
+                </div>
+
+                <button onclick="window.location.href='loginpage.html'"
+                        class="w-full group border border-white/20 px-6 py-4 flex items-center justify-center gap-3 hover:bg-white hover:text-aura-dark transition duration-300 rounded-sm bg-white/5">
+                    <span class="uppercase text-xs font-bold tracking-widest">Login / Sign In</span>
+                    <i class="ph ph-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                </button>
+                
+                <p class="mt-6 text-[10px] text-white/30 italic">
+                    By continuing, you agree to our Terms of Service. No spam, ever.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-[#0e231f] text-white pt-24 pb-12 border-t border-white/5">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20">
+                <div>
+                    <a href="#" class="text-3xl font-serif font-bold tracking-widest text-white mb-6 block">AURA.</a>
+                    <p class="text-white/50 text-sm leading-relaxed mb-8">
+                        Redefining Indonesian fashion through sustainability and timeless design. Proudly made in Java.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-aura-accent hover:text-aura-dark transition border border-white/10"><i class="ph ph-instagram-logo text-lg"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-aura-accent hover:text-aura-dark transition border border-white/10"><i class="ph ph-facebook-logo text-lg"></i></a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-aura-accent hover:text-aura-dark transition border border-white/10"><i class="ph ph-pinterest-logo text-lg"></i></a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="uppercase tracking-widest text-xs font-bold mb-8 text-aura-accent border-b border-white/10 pb-2 inline-block">Collections</h4>
+                    <ul class="space-y-4 text-sm text-white/60">
+                        <li><a href="#" class="hover:text-white transition flex items-center gap-2 group"><i class="ph ph-caret-right text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>New Arrivals</a></li>
+                        <li><a href="#" class="hover:text-white transition flex items-center gap-2 group"><i class="ph ph-caret-right text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>Best Sellers</a></li>
+                        <li><a href="#" class="hover:text-white transition flex items-center gap-2 group"><i class="ph ph-caret-right text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>The Linen Edit</a></li>
+                        <li><a href="#" class="hover:text-white transition flex items-center gap-2 group"><i class="ph ph-caret-right text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>Gift Cards</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="uppercase tracking-widest text-xs font-bold mb-8 text-aura-accent border-b border-white/10 pb-2 inline-block">Help & Info</h4>
+                    <ul class="space-y-4 text-sm text-white/60">
+                        <li><a href="#" class="hover:text-white transition flex items-center gap-2 group"><i class="ph ph-caret-right text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>Shipping & Returns</a></li>
+                        <li><a href="#" class="hover:text-white transition flex items-center gap-2 group"><i class="ph ph-caret-right text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>Size Guide</a></li>
+                        <li><a href="#" class="hover:text-white transition flex items-center gap-2 group"><i class="ph ph-caret-right text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>Sustainability FAQ</a></li>
+                        <li><a href="#" class="hover:text-white transition flex items-center gap-2 group"><i class="ph ph-caret-right text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>Contact Us</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="uppercase tracking-widest text-xs font-bold mb-8 text-aura-accent border-b border-white/10 pb-2 inline-block">Studio</h4>
+                    <ul class="space-y-6 text-sm text-white/60">
+                        <li class="flex items-start gap-4">
+                            <i class="ph ph-map-pin text-xl text-aura-accent mt-0.5"></i>
+                            <span>Jl. Senopati No. 45,<br>Jakarta Selatan 12190</span>
+                        </li>
+                        <li class="flex items-center gap-4">
+                            <i class="ph ph-envelope text-xl text-aura-accent"></i>
+                            <span class="border-b border-transparent hover:border-white/60 transition cursor-pointer">hello@auraapparel.id</span>
+                        </li>
+                        <li class="flex items-center gap-4">
+                            <i class="ph ph-whatsapp-logo text-xl text-aura-accent"></i>
+                            <span>+62 812 3456 7890</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] text-white/30 uppercase tracking-widest">
+                <p>&copy; 2026 Aura Apparel Indonesia. All rights reserved.</p>
+                <div class="flex gap-8 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-white transition">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="relative z-50" aria-labelledby="slide-over-title" role="dialog" aria-modal="true" x-show="cartOpen" x-cloak>
+        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
+             x-show="cartOpen"
+             x-transition:enter="ease-in-out duration-500"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="ease-in-out duration-500"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="cartOpen = false"></div>
+
+        <div class="fixed inset-0 overflow-hidden">
+            <div class="absolute inset-0 overflow-hidden">
+                <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-0 sm:pl-10">
+                    <div class="pointer-events-auto w-screen max-w-md transform transition ease-in-out duration-500"
+                         x-show="cartOpen"
+                         x-transition:enter="translate-x-full"
+                         x-transition:enter-end="translate-x-0"
+                         x-transition:leave="translate-x-0"
+                         x-transition:leave-end="translate-x-full">
+                        
+                        <div class="flex h-full flex-col bg-white shadow-2xl">
+                            <div class="flex items-start justify-between px-4 py-6 sm:px-6 border-b border-gray-100 bg-aura-base">
+                                <h2 class="text-xl font-serif text-aura-dark font-bold" id="slide-over-title">Shopping Bag</h2>
+                                <button type="button" class="text-gray-400 hover:text-aura-error transition p-2" @click="cartOpen = false">
+                                    <span class="sr-only">Close panel</span>
+                                    <i class="ph ph-x text-2xl"></i>
+                                </button>
+                            </div>
+
+                            <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
+                                <div class="flow-root">
+                                    <ul role="list" class="-my-6 divide-y divide-gray-100">
+                                        <template x-show="cart.length === 0">
+                                            <div class="h-full flex flex-col items-center justify-center text-center mt-20 opacity-50">
+                                                <i class="ph ph-tote text-6xl mb-4 text-aura-dark"></i>
+                                                <p class="text-gray-500 font-serif text-lg">Your bag is empty.</p>
+                                                <button @click="cartOpen = false" class="mt-4 text-xs font-bold uppercase tracking-widest text-aura-accent hover:text-aura-dark underline">Start Shopping</button>
+                                            </div>
+                                        </template>
+                                        
+                                        <template x-for="(item, index) in cart" :key="index">
+                                            <li class="flex py-6">
+                                                <div class="h-24 w-20 flex-shrink-0 overflow-hidden border border-gray-200 rounded-sm">
+                                                    <img :src="item.image" class="h-full w-full object-cover object-center">
+                                                </div>
+                                                <div class="ml-4 flex flex-1 flex-col">
+                                                    <div>
+                                                        <div class="flex justify-between text-base font-medium text-aura-dark">
+                                                            <h3 x-text="item.name" class="font-serif pr-4"></h3>
+                                                            <p class="whitespace-nowrap" x-text="formatMoney(item.price)"></p>
+                                                        </div>
+                                                        <p class="mt-1 text-[10px] text-gray-500 uppercase tracking-wider" x-text="item.category"></p>
+                                                        <p class="mt-1 text-xs text-aura-dark font-bold">Size: <span x-text="item.size" class="text-aura-accent"></span></p>
+                                                    </div>
+                                                    <div class="flex flex-1 items-end justify-between text-sm">
+                                                        <p class="text-gray-500 text-xs">Qty 1</p>
+                                                        <button type="button" @click="removeFromCart(index)" class="font-bold text-aura-error/70 hover:text-aura-error text-[10px] uppercase tracking-wider transition">Remove</button>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-gray-100 px-4 py-6 sm:px-6 bg-aura-base/30">
+                                <div class="flex justify-between text-base font-medium text-aura-dark mb-4">
+                                    <p class="font-serif font-bold">Subtotal</p>
+                                    <p class="font-bold" x-text="formatMoney(cartTotal)"></p>
+                                </div>
+                                <p class="mt-0.5 text-[10px] text-gray-500 mb-6 uppercase tracking-wider">Shipping and taxes calculated at checkout.</p>
+                                <div class="mt-6">
+                                    <a href="#" class="flex items-center justify-center rounded-sm border border-transparent bg-aura-dark px-6 py-4 text-base font-medium text-white shadow-sm hover:bg-aura-accent hover:text-aura-dark transition uppercase tracking-widest text-xs font-bold duration-300">
+                                        Checkout
+                                    </a>
+                                </div>
+                                <div class="mt-6 flex justify-center text-center text-xs text-gray-500">
+                                    <button type="button" class="font-medium hover:text-aura-dark transition" @click="cartOpen = false">
+                                        Or <span class="text-aura-accent font-bold">Continue Shopping</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="mobileMenuOpen" class="fixed inset-0 z-50 flex lg:hidden" x-cloak>
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="mobileMenuOpen = false" x-transition.opacity></div>
+        <div class="relative bg-aura-base w-4/5 max-w-sm h-full shadow-2xl p-8 flex flex-col" 
+             x-transition:enter="transition transform duration-300"
+             x-transition:enter-start="-translate-x-full"
+             x-transition:enter-end="translate-x-0"
+             x-transition:leave="transition transform duration-300"
+             x-transition:leave-start="translate-x-0"
+             x-transition:leave-end="-translate-x-full">
+            
+            <div class="flex justify-between items-center mb-12">
+                <span class="text-2xl font-serif font-bold text-aura-dark">AURA.</span>
+                <button @click="mobileMenuOpen = false" class="p-2 -mr-2"><i class="ph ph-x text-2xl text-aura-dark"></i></button>
+            </div>
+
+            <nav class="flex flex-col space-y-6 text-xl font-serif text-aura-dark">
+                <a href="#shop" @click="mobileMenuOpen = false" class="border-b border-aura-dark/10 pb-4 flex justify-between items-center group">
+                    Shop Collection <i class="ph ph-arrow-right opacity-0 group-hover:opacity-100 transition-opacity text-aura-accent"></i>
+                </a>
+                <a href="#about" @click="mobileMenuOpen = false" class="border-b border-aura-dark/10 pb-4 flex justify-between items-center group">
+                    Sustainability <i class="ph ph-arrow-right opacity-0 group-hover:opacity-100 transition-opacity text-aura-accent"></i>
+                </a>
+                <a href="#" class="border-b border-aura-dark/10 pb-4 flex justify-between items-center group">
+                    Journal <i class="ph ph-arrow-right opacity-0 group-hover:opacity-100 transition-opacity text-aura-accent"></i>
+                </a>
+                
+                <div class="pt-8">
+                    <a href="loginpage.html" class="block w-full text-center bg-aura-dark text-white py-4 text-xs font-bold uppercase tracking-widest rounded-sm mb-4">Login</a>
+                    <a href="#" class="block w-full text-center border border-aura-dark text-aura-dark py-4 text-xs font-bold uppercase tracking-widest rounded-sm">Create Account</a>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <a href="https://wa.me/" target="_blank" class="fixed bottom-6 right-6 z-40 bg-[#25D366] text-white w-14 h-14 rounded-full shadow-2xl hover:scale-110 transition-transform group flex items-center justify-center hover:shadow-[#25d366]/40">
+        <i class="ph-fill ph-whatsapp-logo text-3xl"></i>
+        <span class="absolute right-full mr-4 bg-white text-aura-dark text-xs font-bold px-4 py-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition pointer-events-none whitespace-nowrap origin-right scale-95 group-hover:scale-100">Chat with us</span>
+    </a>
+
+    <script>
+        function shopApp() {
+            return {
+                /* UI STATES */
+                scrolled: false, 
+                mobileMenuOpen: false, 
+                cartOpen: false,
+                searchOpen: false,
+                newsletterEmail: '',
+                
+                /* TOAST NOTIFICATION SYSTEM */
+                toasts: [],
+                showToast(message) {
+                    const id = Date.now();
+                    this.toasts.push({ id, message, visible: true });
+                    // Auto remove after 3 seconds
+                    setTimeout(() => {
+                        const index = this.toasts.findIndex(t => t.id === id);
+                        if (index > -1) this.toasts[index].visible = false;
+                        // Clean up array
+                        setTimeout(() => {
+                            this.toasts = this.toasts.filter(t => t.id !== id);
+                        }, 300);
+                    }, 3000);
+                },
+
+                /* CART LOGIC */
+                cart: [],
+                get cartTotal() {
+                    return this.cart.reduce((total, item) => total + item.price, 0);
+                },
+                get cartCount() {
+                    return this.cart.length;
+                },
+                addToCart(product, size) {
+                    // Create deep copy to avoid reference issues
+                    const item = JSON.parse(JSON.stringify(product));
+                    item.size = size; // Attach selected size
+                    
+                    this.cart.push(item);
+                    this.cartOpen = true; 
+                    this.showToast(`${item.name} (${size}) added to bag.`);
+                },
+                removeFromCart(index) {
+                    this.cart.splice(index, 1);
+                },
+                formatMoney(amount) {
+                    return new Intl.NumberFormat('id-ID', { 
+                        style: 'currency', 
+                        currency: 'IDR', 
+                        maximumSignificantDigits: 9 
+                    }).format(amount);
+                },
+
+                /* PRODUCT DATABASE */
+                products: [
+                    { id: 1, name: 'Surabaya Utility Vest', price: 1250000, category: 'Outerwear', image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1000', badge: 'Organic Linen', new: true },
+                    { id: 2, name: 'Ubud Flow Dress', price: 899000, category: 'Dresses', image: 'https://images.unsplash.com/photo-1618244972963-dbee1a7edc95?q=80&w=1000', badge: 'Raw Silk', new: true },
+                    { id: 3, name: 'Jakarta Classic Shirt', price: 650000, category: 'Tops', image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=1000', badge: 'Recycled Cotton', new: false },
+                    { id: 4, name: 'Everyday Tote', price: 450000, category: 'Accessories', image: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=1000', badge: 'Vegan Leather', new: false },
+                    { id: 5, name: 'Seminyak Trousers', price: 950000, category: 'Bottoms', image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=1000', badge: 'Bamboo Fiber', new: false },
+                    { id: 6, name: 'Borneo Kimono', price: 1450000, category: 'Outerwear', image: 'https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03?q=80&w=1000', badge: 'Hand-Woven', new: false },
+                    { id: 7, name: 'Basic Organic Tee', price: 350000, category: 'Tops', image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1000', badge: 'Cotton', new: false },
+                    { id: 8, name: 'Weekend Bucket Hat', price: 250000, category: 'Accessories', image: 'https://images.unsplash.com/photo-1575428652377-a2d80e2277fc?q=80&w=1000', badge: 'Recycled', new: false }
+                ],
+
+                /* INIT */
+                init() {
+                    window.addEventListener('scroll', () => {
+                        this.scrolled = window.scrollY > 20;
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>
