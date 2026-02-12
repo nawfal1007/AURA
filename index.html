@@ -93,6 +93,17 @@
 
         /* Smooth Anchor Offsets */
         html { scroll-padding-top: 100px; }
+        
+        /* Loading Spinner */
+        .spinner {
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-left-color: #C5A065;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 
@@ -506,10 +517,14 @@
                                 </button>
                             </div>
 
-                            <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
+                            <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6 relative">
+                                <div x-show="cartLoading" class="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex items-center justify-center">
+                                    <div class="spinner border-aura-dark"></div>
+                                </div>
+
                                 <div class="flow-root">
                                     <ul role="list" class="-my-6 divide-y divide-gray-100">
-                                        <template x-show="cart.length === 0">
+                                        <template x-show="cart.length === 0 && !cartLoading">
                                             <div class="h-full flex flex-col items-center justify-center text-center mt-20 opacity-50">
                                                 <i class="ph ph-tote text-6xl mb-4 text-aura-dark"></i>
                                                 <p class="text-gray-500 font-serif text-lg">Your bag is empty.</p>
@@ -532,8 +547,8 @@
                                                         <p class="mt-1 text-xs text-aura-dark font-bold">Size: <span x-text="item.size" class="text-aura-accent"></span></p>
                                                     </div>
                                                     <div class="flex flex-1 items-end justify-between text-sm">
-                                                        <p class="text-gray-500 text-xs">Qty 1</p>
-                                                        <button type="button" @click="removeFromCart(index)" class="font-bold text-aura-error/70 hover:text-aura-error text-[10px] uppercase tracking-wider transition">Remove</button>
+                                                        <p class="text-gray-500 text-xs">Qty <span x-text="item.quantity"></span></p>
+                                                        <button type="button" @click="removeFromCart(index, item)" class="font-bold text-aura-error/70 hover:text-aura-error text-[10px] uppercase tracking-wider transition">Remove</button>
                                                     </div>
                                                 </div>
                                             </li>
@@ -623,6 +638,7 @@
                 mobileMenuOpen: false, 
                 cartOpen: false,
                 searchOpen: false,
+                cartLoading: false,
                 newsletterEmail: '',
                 
                 /* COMPUTED PROPERTIES */
@@ -631,98 +647,20 @@
                     return this.session.user.email.substring(0, 2).toUpperCase();
                 },
                 
-                /* TOAST NOTIFICATION SYSTEM */
+                /* TOAST SYSTEM */
                 toasts: [],
-                showToast(message, title = 'Added to Bag', type = 'success') {
+                showToast(message, title = 'Notification', type = 'success') {
                     const id = Date.now();
                     this.toasts.push({ id, message, title, type, visible: true });
-                    // Auto remove after 3 seconds
                     setTimeout(() => {
                         const index = this.toasts.findIndex(t => t.id === id);
                         if (index > -1) this.toasts[index].visible = false;
-                        // Clean up array
-                        setTimeout(() => {
-                            this.toasts = this.toasts.filter(t => t.id !== id);
-                        }, 300);
+                        setTimeout(() => this.toasts = this.toasts.filter(t => t.id !== id), 300);
                     }, 3000);
                 },
 
-                /* CART LOGIC (With LocalStorage Persistence) */
-                cart: [],
-                
-                initCart() {
-                    // Load from LocalStorage on init
-                    const storedCart = localStorage.getItem('aura_cart');
-                    if (storedCart) {
-                        try {
-                            this.cart = JSON.parse(storedCart);
-                        } catch (e) {
-                            console.error('Failed to parse cart from storage', e);
-                            this.cart = [];
-                        }
-                    }
-
-                    // Watch for changes and save to LocalStorage
-                    this.$watch('cart', (value) => {
-                        localStorage.setItem('aura_cart', JSON.stringify(value));
-                    });
-                },
-
-                get cartTotal() {
-                    return this.cart.reduce((total, item) => total + item.price, 0);
-                },
-                get cartCount() {
-                    return this.cart.length;
-                },
-                addToCart(product, size) {
-                    // Create deep copy to avoid reference issues
-                    const item = JSON.parse(JSON.stringify(product));
-                    item.size = size; // Attach selected size
-                    
-                    this.cart.push(item);
-                    this.cartOpen = true; 
-                    this.showToast(`${item.name} (${size}) added to bag.`);
-                },
-                removeFromCart(index) {
-                    this.cart.splice(index, 1);
-                },
-                formatMoney(amount) {
-                    return new Intl.NumberFormat('id-ID', { 
-                        style: 'currency', 
-                        currency: 'IDR', 
-                        maximumSignificantDigits: 9 
-                    }).format(amount);
-                },
-
-                /* AUTHENTICATION LOGIC */
-                async initAuth() {
-                    const sbUrl = 'https://xenosyklkpisszqwibdw.supabase.co';
-                    const sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhlbm9zeWtsa3Bpc3N6cXdpYmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4NTkxNzcsImV4cCI6MjA4NjQzNTE3N30.A_WVC9GRa7USe2DPbzVUWw3TuBHnyImVqBZnzuPJbMw';
-                    
-                    if (typeof supabase !== 'undefined') {
-                        this.supabase = supabase.createClient(sbUrl, sbKey);
-                        
-                        // Check initial session
-                        const { data: { session } } = await this.supabase.auth.getSession();
-                        this.session = session;
-
-                        // Listen for auth changes
-                        this.supabase.auth.onAuthStateChange((_event, session) => {
-                            this.session = session;
-                        });
-                    } else {
-                        console.error('Supabase client library not loaded');
-                    }
-                },
-
-                async handleLogout() {
-                    if (this.supabase) {
-                        await this.supabase.auth.signOut();
-                        this.showToast('You have been signed out.', 'Goodbye!', 'success');
-                    }
-                },
-
                 /* PRODUCT DATABASE */
+                // Important: This remains the "Master List" for product details
                 products: [
                     { id: 1, name: 'Surabaya Utility Vest', price: 1250000, category: 'Outerwear', image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1000', badge: 'Organic Linen', new: true },
                     { id: 2, name: 'Ubud Flow Dress', price: 899000, category: 'Dresses', image: 'https://images.unsplash.com/photo-1618244972963-dbee1a7edc95?q=80&w=1000', badge: 'Raw Silk', new: true },
@@ -734,15 +672,218 @@
                     { id: 8, name: 'Weekend Bucket Hat', price: 250000, category: 'Accessories', image: 'https://images.unsplash.com/photo-1575428652377-a2d80e2277fc?q=80&w=1000', badge: 'Recycled', new: false }
                 ],
 
+                /* HYBRID CART SYSTEM */
+                cart: [],
+
+                get cartTotal() {
+                    return this.cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+                },
+                get cartCount() {
+                    return this.cart.reduce((total, item) => total + item.quantity, 0);
+                },
+
+                // 1. ADD TO CART
+                async addToCart(product, size) {
+                    this.cartOpen = true; 
+                    
+                    if (!this.session) {
+                        // GUEST MODE: Use LocalStorage
+                        this.addToLocalCart(product, size);
+                    } else {
+                        // AUTH MODE: Use Supabase
+                        await this.addToCloudCart(product, size);
+                    }
+                },
+
+                addToLocalCart(product, size) {
+                    const existingItem = this.cart.find(i => i.id === product.id && i.size === size);
+                    if (existingItem) {
+                        existingItem.quantity++;
+                    } else {
+                        // Create deep copy
+                        const item = JSON.parse(JSON.stringify(product));
+                        item.size = size;
+                        item.quantity = 1;
+                        this.cart.push(item);
+                    }
+                    this.saveLocalCart();
+                    this.showToast(`${product.name} added (Guest).`);
+                },
+
+                async addToCloudCart(product, size) {
+                    this.cartLoading = true;
+                    try {
+                        // Check if item exists in UI to optimize
+                        const existingItem = this.cart.find(i => i.id === product.id && i.size === size);
+                        const newQty = existingItem ? existingItem.quantity + 1 : 1;
+
+                        // Upsert to DB (Insert or Update if exists)
+                        const { error } = await this.supabase
+                            .from('cart_items')
+                            .upsert({ 
+                                user_id: this.session.user.id,
+                                product_id: product.id, 
+                                size: size,
+                                quantity: newQty
+                            }, { onConflict: 'user_id, product_id, size' });
+
+                        if (error) throw error;
+                        
+                        // Refresh cart from DB to be sure
+                        await this.fetchCloudCart();
+                        this.showToast(`${product.name} saved to account.`);
+                        
+                    } catch (e) {
+                        console.error('Cart Error:', e);
+                        this.showToast('Could not save to cloud.', 'Network Error', 'error');
+                    } finally {
+                        this.cartLoading = false;
+                    }
+                },
+
+                // 2. REMOVE FROM CART
+                async removeFromCart(index, item) {
+                    if (!this.session) {
+                        this.cart.splice(index, 1);
+                        this.saveLocalCart();
+                    } else {
+                        this.cartLoading = true;
+                        try {
+                            const { error } = await this.supabase
+                                .from('cart_items')
+                                .delete()
+                                .match({ 
+                                    user_id: this.session.user.id,
+                                    product_id: item.id,
+                                    size: item.size 
+                                }); // Note: item.id is product_id in UI object
+                                
+                            if (error) throw error;
+                            
+                            // Optimistic removal from UI
+                            this.cart.splice(index, 1);
+                            
+                        } catch (e) {
+                            console.error('Delete Error:', e);
+                            this.showToast('Could not remove item.', 'Error', 'error');
+                        } finally {
+                            this.cartLoading = false;
+                        }
+                    }
+                },
+
+                // 3. CART UTILITIES
+                saveLocalCart() {
+                    localStorage.setItem('aura_cart_guest', JSON.stringify(this.cart));
+                },
+                
+                loadLocalCart() {
+                    const stored = localStorage.getItem('aura_cart_guest');
+                    if (stored) this.cart = JSON.parse(stored);
+                },
+
+                async fetchCloudCart() {
+                    this.cartLoading = true;
+                    try {
+                        // Fetch raw rows from DB
+                        const { data, error } = await this.supabase
+                            .from('cart_items')
+                            .select('*');
+                        
+                        if (error) throw error;
+
+                        // HYDRATION: Merge DB rows with JS Product Details
+                        this.cart = data.map(row => {
+                            const productInfo = this.products.find(p => p.id === row.product_id);
+                            if (!productInfo) return null; // Handle deleted products
+                            
+                            return {
+                                ...productInfo, // Name, Price, Image
+                                size: row.size,
+                                quantity: row.quantity
+                                // We don't need row.id
+                            };
+                        }).filter(Boolean); // Remove nulls
+
+                    } catch (e) {
+                        console.error('Fetch Error:', e);
+                    } finally {
+                        this.cartLoading = false;
+                    }
+                },
+
+                async syncGuestCartToCloud() {
+                    // This runs once when user logs in
+                    const guestCart = JSON.parse(localStorage.getItem('aura_cart_guest') || '[]');
+                    
+                    if (guestCart.length > 0) {
+                        this.showToast('Syncing your cart...', 'Please wait');
+                        
+                        for (const item of guestCart) {
+                            // Upload each local item to DB
+                            await this.addToCloudCart(item, item.size); // Re-use logic (handles qty merge)
+                        }
+                        
+                        // Clear local cart after successful sync
+                        localStorage.removeItem('aura_cart_guest');
+                    }
+                },
+
+                formatMoney(amount) {
+                    return new Intl.NumberFormat('id-ID', { 
+                        style: 'currency', 
+                        currency: 'IDR', 
+                        maximumSignificantDigits: 9 
+                    }).format(amount);
+                },
+
+                /* AUTH INITIALIZATION */
+                async initAuth() {
+                    const sbUrl = 'https://xenosyklkpisszqwibdw.supabase.co';
+                    const sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhlbm9zeWtsa3Bpc3N6cXdpYmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4NTkxNzcsImV4cCI6MjA4NjQzNTE3N30.A_WVC9GRa7USe2DPbzVUWw3TuBHnyImVqBZnzuPJbMw';
+                    
+                    if (typeof supabase !== 'undefined') {
+                        this.supabase = supabase.createClient(sbUrl, sbKey);
+                        
+                        // Check initial session
+                        const { data: { session } } = await this.supabase.auth.getSession();
+                        this.handleSessionChange(session);
+
+                        // Listen for auth changes
+                        this.supabase.auth.onAuthStateChange((_event, session) => {
+                            this.handleSessionChange(session);
+                        });
+                    }
+                },
+
+                async handleSessionChange(session) {
+                    this.session = session;
+                    
+                    if (session) {
+                        // Logged In: Sync local items -> Cloud, then Fetch Cloud
+                        await this.syncGuestCartToCloud();
+                        await this.fetchCloudCart();
+                    } else {
+                        // Logged Out: Load Guest Cart
+                        this.loadLocalCart();
+                    }
+                },
+
+                async handleLogout() {
+                    if (this.supabase) {
+                        await this.supabase.auth.signOut();
+                        this.cart = []; // Clear UI immediately
+                        this.showToast('You have been signed out.', 'Goodbye!', 'success');
+                        // handleSessionChange will trigger automatically to load guest cart
+                    }
+                },
+
                 /* MAIN INIT */
                 init() {
-                    // Scroll listener
                     window.addEventListener('scroll', () => {
                         this.scrolled = window.scrollY > 20;
                     });
 
-                    // Initialize features
-                    this.initCart();
                     this.initAuth();
                 }
             }
