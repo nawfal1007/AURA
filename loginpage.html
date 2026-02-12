@@ -18,8 +18,8 @@
                     colors: {
                         aura: {
                             base: '#F9F7F2',    /* "Rice Paper" Off-White */
-                            dark: '#0e231f',    /* "Borneo" Deep Green (Darker for contrast) */
-                            forest: '#15302a',  /* Standard Brand Green */
+                            dark: '#0e231f',    /* "Borneo" Deep Green */
+                            forest: '#15302a',  /* Standard Green */
                             charcoal: '#2D2D2D',
                             accent: '#C5A065',  /* "Rattan" Gold */
                             sand: '#E6E2DD',
@@ -60,13 +60,11 @@
     </script>
 
     <style>
-        /* Hide Alpine elements before load */
+        /* Base Resets */
         [x-cloak] { display: none !important; }
-        
-        /* Smooth Scrolling */
         html { scroll-behavior: smooth; }
 
-        /* Custom Scrollbar for Modals */
+        /* Custom Scrollbar for Legal Text */
         .custom-scroll::-webkit-scrollbar {
             width: 6px;
         }
@@ -79,6 +77,7 @@
         }
 
         /* Autofill Styling Fix */
+        /* Forces the browser autocomplete to match our theme */
         input:-webkit-autofill,
         input:-webkit-autofill:hover, 
         input:-webkit-autofill:focus, 
@@ -88,13 +87,19 @@
             transition: background-color 5000s ease-in-out 0s;
         }
 
-        /* Input Focus Ring Animation */
+        /* Input Focus Animations */
+        .input-group i {
+            transition: all 0.3s ease;
+        }
         .input-group:focus-within i {
             color: #15302a;
             transform: translateY(-50%) scale(1.1);
         }
+        .input-group input:focus {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
 
-        /* Button Hover Shine Effect */
+        /* Button Shine Effect */
         .btn-shine {
             position: relative;
             overflow: hidden;
@@ -113,7 +118,7 @@
             left: 100%;
         }
         
-        /* Canvas Positioning */
+        /* Particle Canvas Positioning */
         #particle-canvas {
             position: absolute;
             top: 0;
@@ -121,6 +126,11 @@
             width: 100%;
             height: 100%;
             z-index: 1;
+        }
+
+        /* Strength Meter Transitions */
+        .strength-bar {
+            transition: width 0.3s ease-out, background-color 0.3s ease;
         }
     </style>
 </head>
@@ -169,7 +179,7 @@
         </div>
     </div>
 
-    <div class="hidden lg:block w-3/5 relative bg-aura-dark overflow-hidden group">
+    <div class="hidden lg:block w-3/5 relative bg-aura-dark overflow-hidden group select-none">
         <canvas id="particle-canvas"></canvas>
         
         <div class="absolute inset-0 bg-gradient-to-b from-aura-dark/30 via-transparent to-aura-dark/90 z-10 pointer-events-none"></div>
@@ -190,7 +200,7 @@
                     Join over 15,000 members who choose sustainability without compromising on luxury. Access exclusive collections, early drops, and track your environmental impact.
                 </p>
 
-                <div class="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-sm max-w-md">
+                <div class="bg-white/5 backdrop-blur-md border border-white/10 p-6 rounded-sm max-w-md hover:bg-white/10 transition duration-500">
                     <div class="flex gap-1 text-aura-accent mb-3">
                         <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
                     </div>
@@ -227,13 +237,13 @@
 
             <div class="flex border-b border-gray-200 mb-10 w-full max-w-sm mx-auto animate-fade-in" style="animation-delay: 0.1s;">
                 <button @click="switchMode('login')" 
-                        class="w-1/2 pb-4 text-xs font-bold uppercase tracking-widest transition-all duration-300 border-b-2 relative overflow-hidden"
+                        class="w-1/2 pb-4 text-xs font-bold uppercase tracking-widest transition-all duration-300 border-b-2 relative overflow-hidden focus:outline-none"
                         :class="mode === 'login' ? 'text-aura-dark border-aura-dark' : 'text-gray-400 border-transparent hover:text-aura-dark'">
                     Sign In
                     <span x-show="mode === 'login'" class="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-aura-dark rounded-full mb-1 opacity-0 animate-ping"></span>
                 </button>
                 <button @click="switchMode('signup')" 
-                        class="w-1/2 pb-4 text-xs font-bold uppercase tracking-widest transition-all duration-300 border-b-2 relative"
+                        class="w-1/2 pb-4 text-xs font-bold uppercase tracking-widest transition-all duration-300 border-b-2 relative focus:outline-none"
                         :class="mode === 'signup' ? 'text-aura-dark border-aura-dark' : 'text-gray-400 border-transparent hover:text-aura-dark'">
                     Register
                 </button>
@@ -247,10 +257,12 @@
                         <span x-show="email && !isEmailValid" class="text-aura-error normal-case tracking-normal italic">Invalid format</span>
                     </label>
                     <div class="relative input-group">
-                        <i class="ph ph-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 transition-all duration-300"></i>
+                        <i class="ph ph-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        
                         <input type="email" 
                                x-model="email"
                                @input="validateEmail()"
+                               @keyup.enter="handleSubmit"
                                required
                                placeholder="you@example.com"
                                class="w-full bg-transparent border focus:border-aura-dark pl-12 pr-4 py-4 outline-none transition-all duration-300 rounded-sm placeholder-gray-300 text-aura-dark font-medium"
@@ -263,24 +275,26 @@
                 <div>
                     <label class="block text-[10px] font-bold uppercase tracking-widest text-aura-charcoal/60 mb-2">Password</label>
                     <div class="relative input-group">
-                        <i class="ph ph-lock-key absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 transition-all duration-300"></i>
+                        <i class="ph ph-lock-key absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                        
                         <input :type="showPassword ? 'text' : 'password'" 
                                x-model="password"
                                @input="checkPasswordStrength()"
+                               @keyup.enter="handleSubmit"
                                required
                                placeholder="••••••••"
                                class="w-full bg-transparent border border-gray-300 focus:border-aura-dark pl-12 pr-12 py-4 outline-none transition-all duration-300 rounded-sm placeholder-gray-300 text-aura-dark font-medium">
                         
                         <button type="button" 
                                 @click="showPassword = !showPassword"
-                                class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-aura-dark transition p-1 rounded-full hover:bg-gray-100">
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-aura-dark transition p-1 rounded-full hover:bg-gray-100 focus:outline-none">
                             <i :class="showPassword ? 'ph ph-eye-slash' : 'ph ph-eye'" class="text-lg"></i>
                         </button>
                     </div>
 
                     <div x-show="mode === 'signup'" x-collapse class="mt-3 space-y-2">
                         <div class="flex h-1 w-full bg-gray-200 rounded-full overflow-hidden">
-                            <div class="h-full transition-all duration-500 ease-out"
+                            <div class="h-full strength-bar"
                                  :class="{
                                     'w-0': strength === 0,
                                     'w-1/4 bg-aura-error': strength === 1,
@@ -289,11 +303,11 @@
                                     'w-full bg-aura-success': strength === 4
                                  }"></div>
                         </div>
-                        <p class="text-[10px] text-gray-500 text-right" x-text="strengthText"></p>
+                        <p class="text-[10px] text-gray-500 text-right font-bold" x-text="strengthText"></p>
                     </div>
 
                     <div class="flex justify-end mt-3" x-show="mode === 'login'">
-                        <button type="button" @click="forgotPasswordModal = true" class="text-[10px] text-gray-400 hover:text-aura-accent transition underline decoration-transparent hover:decoration-aura-accent underline-offset-4">
+                        <button type="button" @click="forgotPasswordModal = true" class="text-[10px] text-gray-400 hover:text-aura-accent transition underline decoration-transparent hover:decoration-aura-accent underline-offset-4 focus:outline-none">
                             Forgot Password?
                         </button>
                     </div>
@@ -304,7 +318,7 @@
                         class="btn-shine w-full bg-aura-dark text-white py-4 text-xs font-bold uppercase tracking-widest hover:bg-aura-forest hover:shadow-xl transition-all duration-300 shadow-lg disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-3 rounded-sm transform active:scale-[0.98] mt-8 group"
                         :class="{'animate-shake': shakeButton}">
                     
-                    <span x-text="mode === 'login' ? 'Login' : 'Sign Up'"></span>
+                    <span x-text="mode === 'login' ? 'SECURE SIGN IN' : 'CREATE ACCOUNT'"></span>
                     
                     <i class="ph ph-arrow-right group-hover:translate-x-1 transition-transform" x-show="!loading"></i>
                 </button>
@@ -313,20 +327,21 @@
 
             <p class="mt-12 text-center text-[10px] text-gray-400 leading-relaxed max-w-xs mx-auto animate-fade-in" style="animation-delay: 0.3s;">
                 By continuing, you acknowledge that you have read and understood our 
-                <button @click="termsModal = true" class="underline hover:text-aura-dark transition text-aura-charcoal/70">Terms of Service</button> and 
-                <button @click="privacyModal = true" class="underline hover:text-aura-dark transition text-aura-charcoal/70">Privacy Policy</button>.
+                <button @click="termsModal = true" class="underline hover:text-aura-dark transition text-aura-charcoal/70 focus:outline-none">Terms of Service</button> and 
+                <button @click="privacyModal = true" class="underline hover:text-aura-dark transition text-aura-charcoal/70 focus:outline-none">Privacy Policy</button>.
             </p>
         </div>
         
         <div class="p-6 text-center lg:text-left border-t border-gray-100 bg-white/50">
-            <p class="text-[10px] text-gray-300 uppercase tracking-widest font-bold">
-                &copy; 2026 Aura Apparel. Secure Enclave.
+            <p class="text-[10px] text-gray-300 uppercase tracking-widest font-bold flex items-center justify-center lg:justify-start gap-2">
+                <i class="ph-fill ph-shield-check"></i> &copy; 2026 Aura Apparel. Secure Enclave.
             </p>
         </div>
     </div>
 
     <template x-if="termsModal || privacyModal || forgotPasswordModal">
         <div class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" 
                  x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                  @click="closeAllModals()"></div>
@@ -339,49 +354,49 @@
                 <div x-show="termsModal" class="flex flex-col h-full">
                     <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-white">
                         <h3 class="font-serif text-2xl text-aura-dark">Terms of Service</h3>
-                        <button @click="closeAllModals()" class="hover:text-aura-error"><i class="ph ph-x text-2xl"></i></button>
+                        <button @click="closeAllModals()" class="hover:text-aura-error transition"><i class="ph ph-x text-2xl"></i></button>
                     </div>
                     <div class="p-8 overflow-y-auto custom-scroll text-sm text-gray-600 leading-relaxed space-y-4">
-                        <p class="font-bold">1. Introduction</p>
-                        <p>Welcome to Aura Apparel. By accessing our website, you agree to these terms.</p>
-                        <p class="font-bold">2. Sustainable Sourcing</p>
-                        <p>We guarantee that all materials used are 100% organic and ethically sourced from certified partners in Java.</p>
-                        <p class="font-bold">3. Purchases</p>
-                        <p>All purchases are subject to availability. We reserve the right to limit quantities of any products or services that we offer.</p>
-                        <p class="font-bold">4. User Accounts</p>
-                        <p>You are responsible for maintaining the confidentiality of your account credentials.</p>
+                        <p class="font-bold text-aura-dark">1. Introduction</p>
+                        <p>Welcome to Aura Apparel. By accessing our website, you agree to these terms and conditions in full. Do not continue to use Aura Apparel's website if you do not accept all of the terms and conditions stated on this page.</p>
+                        <p class="font-bold text-aura-dark">2. Sustainable Sourcing Commitment</p>
+                        <p>We guarantee that all materials used are 100% organic and ethically sourced from certified partners in Java. Any misrepresentation is grounds for a full refund.</p>
+                        <p class="font-bold text-aura-dark">3. Purchases & Payments</p>
+                        <p>All purchases are subject to availability. We reserve the right to limit quantities of any products or services that we offer. Prices are subject to change without notice.</p>
+                        <p class="font-bold text-aura-dark">4. User Accounts</p>
+                        <p>You are responsible for maintaining the confidentiality of your account credentials. You agree to accept responsibility for all activities that occur under your account.</p>
                     </div>
                     <div class="p-6 border-t border-gray-200 bg-gray-50 flex justify-end">
-                        <button @click="closeAllModals()" class="bg-aura-dark text-white px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-aura-accent transition rounded-sm">I Understand</button>
+                        <button @click="closeAllModals()" class="bg-aura-dark text-white px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-aura-accent transition rounded-sm shadow-md">I Understand</button>
                     </div>
                 </div>
 
                 <div x-show="privacyModal" class="flex flex-col h-full">
                     <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-white">
                         <h3 class="font-serif text-2xl text-aura-dark">Privacy Policy</h3>
-                        <button @click="closeAllModals()" class="hover:text-aura-error"><i class="ph ph-x text-2xl"></i></button>
+                        <button @click="closeAllModals()" class="hover:text-aura-error transition"><i class="ph ph-x text-2xl"></i></button>
                     </div>
                     <div class="p-8 overflow-y-auto custom-scroll text-sm text-gray-600 leading-relaxed space-y-4">
                         <p>At Aura Apparel, we value your privacy. This policy outlines how we handle your data.</p>
-                        <ul class="list-disc pl-5 space-y-2">
-                            <li>We collect only necessary information for order processing.</li>
-                            <li>Your payment data is encrypted and never stored on our servers.</li>
+                        <ul class="list-disc pl-5 space-y-2 marker:text-aura-accent">
+                            <li>We collect only necessary information for order processing (Name, Address, Payment Info).</li>
+                            <li>Your payment data is encrypted via Midtrans/Xendit and never stored on our servers.</li>
                             <li>We do not sell your personal information to third parties.</li>
-                            <li>You have the right to request deletion of your data at any time.</li>
+                            <li>You have the right to request deletion of your data at any time via the profile settings.</li>
                         </ul>
                     </div>
                     <div class="p-6 border-t border-gray-200 bg-gray-50 flex justify-end">
-                        <button @click="closeAllModals()" class="bg-aura-dark text-white px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-aura-accent transition rounded-sm">Close</button>
+                        <button @click="closeAllModals()" class="bg-aura-dark text-white px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-aura-accent transition rounded-sm shadow-md">Close</button>
                     </div>
                 </div>
 
                 <div x-show="forgotPasswordModal" class="flex flex-col h-full">
                     <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-white">
                         <h3 class="font-serif text-2xl text-aura-dark">Reset Password</h3>
-                        <button @click="closeAllModals()" class="hover:text-aura-error"><i class="ph ph-x text-2xl"></i></button>
+                        <button @click="closeAllModals()" class="hover:text-aura-error transition"><i class="ph ph-x text-2xl"></i></button>
                     </div>
                     <div class="p-8">
-                        <p class="text-sm text-gray-600 mb-6">Enter the email address associated with your account and we'll send you a link to reset your password.</p>
+                        <p class="text-sm text-gray-600 mb-6">Enter the email address associated with your account and we'll send you a secure link to reset your password.</p>
                         <div class="relative group">
                             <i class="ph ph-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
                             <input type="email" placeholder="you@example.com" class="w-full bg-white border border-gray-300 focus:border-aura-dark pl-12 pr-4 py-3 outline-none transition rounded-sm">
@@ -389,7 +404,7 @@
                     </div>
                     <div class="p-6 border-t border-gray-200 bg-gray-50 flex justify-end gap-3">
                         <button @click="closeAllModals()" class="px-6 py-2 text-xs font-bold uppercase tracking-widest hover:text-aura-dark text-gray-500 transition">Cancel</button>
-                        <button @click="closeAllModals(); $dispatch('notify', {title: 'Email Sent', message: 'If an account exists, you will receive a reset link.'})" class="bg-aura-dark text-white px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-aura-accent transition rounded-sm">Send Reset Link</button>
+                        <button @click="closeAllModals(); $dispatch('notify', {title: 'Email Sent', message: 'If an account exists, you will receive a reset link.'})" class="bg-aura-dark text-white px-6 py-2 text-xs font-bold uppercase tracking-widest hover:bg-aura-accent transition rounded-sm shadow-md">Send Reset Link</button>
                     </div>
                 </div>
 
@@ -398,11 +413,10 @@
     </template>
 
     <script>
-        // --- CONSTANTS ---
+        // 1. SUPABASE CONFIGURATION
         const SUPABASE_URL = 'https://xenosyklkpisszqwibdw.supabase.co'; 
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhlbm9zeWtsa3Bpc3N6cXdpYmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4NTkxNzcsImV4cCI6MjA4NjQzNTE3N30.A_WVC9GRa7USe2DPbzVUWw3TuBHnyImVqBZnzuPJbMw';
         
-        // --- SUPABASE CLIENT ---
         let supabase;
         try {
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -411,132 +425,135 @@
             console.error('Critical System Failure:', err);
         }
 
-        // --- PARTICLE SYSTEM ENGINE ---
-        // Creates the constellation effect on the left panel
-        const initParticles = () => {
-            const canvas = document.getElementById('particle-canvas');
-            if(!canvas) return;
-            const ctx = canvas.getContext('2d');
-            let width, height;
-            let particles = [];
-            
-            // Configuration
-            const particleCount = 60;
-            const connectionDistance = 150;
-            const mouseDistance = 200;
-
-            let mouse = { x: null, y: null };
-
-            window.addEventListener('mousemove', (e) => {
-                const rect = canvas.getBoundingClientRect();
-                mouse.x = e.clientX - rect.left;
-                mouse.y = e.clientY - rect.top;
-            });
-
-            window.addEventListener('mouseleave', () => {
-                mouse.x = null;
-                mouse.y = null;
-            });
-
-            function resize() {
-                width = canvas.width = canvas.parentElement.offsetWidth;
-                height = canvas.height = canvas.parentElement.offsetHeight;
-            }
-
-            class Particle {
-                constructor() {
-                    this.x = Math.random() * width;
-                    this.y = Math.random() * height;
-                    this.vx = (Math.random() - 0.5) * 0.5;
-                    this.vy = (Math.random() - 0.5) * 0.5;
-                    this.size = Math.random() * 2 + 1;
-                    this.baseColor = 'rgba(197, 160, 101, '; // Aura Gold
-                }
-
-                update() {
-                    this.x += this.vx;
-                    this.y += this.vy;
-
-                    // Boundary check
-                    if (this.x < 0 || this.x > width) this.vx *= -1;
-                    if (this.y < 0 || this.y > height) this.vy *= -1;
-
-                    // Mouse interaction
-                    if (mouse.x != null) {
-                        let dx = mouse.x - this.x;
-                        let dy = mouse.y - this.y;
-                        let distance = Math.sqrt(dx*dx + dy*dy);
-                        if (distance < mouseDistance) {
-                            const forceDirectionX = dx / distance;
-                            const forceDirectionY = dy / distance;
-                            const force = (mouseDistance - distance) / mouseDistance;
-                            const directionX = forceDirectionX * force * 0.6;
-                            const directionY = forceDirectionY * force * 0.6;
-                            this.x -= directionX;
-                            this.y -= directionY;
-                        }
-                    }
-                }
-
-                draw() {
-                    ctx.fillStyle = this.baseColor + '0.5)';
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
-            }
-
-            function init() {
-                particles = [];
-                for (let i = 0; i < particleCount; i++) {
-                    particles.push(new Particle());
-                }
-            }
-
-            function animate() {
-                ctx.clearRect(0, 0, width, height);
+        // 2. PARTICLE ENGINE CLASS
+        // Handles the HTML5 Canvas animation logic
+        class ParticleEngine {
+            constructor(canvasId) {
+                this.canvas = document.getElementById(canvasId);
+                if (!this.canvas) return;
                 
-                for (let i = 0; i < particles.length; i++) {
-                    particles[i].update();
-                    particles[i].draw();
+                this.ctx = this.canvas.getContext('2d');
+                this.width = 0;
+                this.height = 0;
+                this.particles = [];
+                this.mouse = { x: null, y: null };
+                this.config = {
+                    count: 60,
+                    connDist: 150,
+                    mouseDist: 200,
+                    color: 'rgba(197, 160, 101, ' // Aura Gold
+                };
 
-                    // Draw connections
-                    for (let j = i; j < particles.length; j++) {
-                        let dx = particles[i].x - particles[j].x;
-                        let dy = particles[i].y - particles[j].y;
-                        let distance = Math.sqrt(dx*dx + dy*dy);
+                this.bindEvents();
+                this.resize();
+                this.init();
+                this.animate();
+            }
 
-                        if (distance < connectionDistance) {
-                            ctx.beginPath();
-                            let opacity = 1 - (distance / connectionDistance);
-                            ctx.strokeStyle = 'rgba(197, 160, 101,' + (opacity * 0.2) + ')';
-                            ctx.lineWidth = 1;
-                            ctx.moveTo(particles[i].x, particles[i].y);
-                            ctx.lineTo(particles[j].x, particles[j].y);
-                            ctx.stroke();
+            bindEvents() {
+                window.addEventListener('resize', () => {
+                    this.resize();
+                    this.init();
+                });
+                
+                // Track mouse relative to canvas
+                window.addEventListener('mousemove', (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    this.mouse.x = e.clientX - rect.left;
+                    this.mouse.y = e.clientY - rect.top;
+                });
+
+                window.addEventListener('mouseleave', () => {
+                    this.mouse.x = null;
+                    this.mouse.y = null;
+                });
+            }
+
+            resize() {
+                this.width = this.canvas.width = this.canvas.parentElement.offsetWidth;
+                this.height = this.canvas.height = this.canvas.parentElement.offsetHeight;
+            }
+
+            init() {
+                this.particles = [];
+                for (let i = 0; i < this.config.count; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.width,
+                        y: Math.random() * this.height,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5,
+                        size: Math.random() * 2 + 1
+                    });
+                }
+            }
+
+            animate() {
+                this.ctx.clearRect(0, 0, this.width, this.height);
+                
+                for (let i = 0; i < this.particles.length; i++) {
+                    let p = this.particles[i];
+
+                    // Move
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    // Bounce
+                    if (p.x < 0 || p.x > this.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > this.height) p.vy *= -1;
+
+                    // Mouse Interaction (Repulsion)
+                    if (this.mouse.x != null) {
+                        let dx = this.mouse.x - p.x;
+                        let dy = this.mouse.y - p.y;
+                        let dist = Math.sqrt(dx*dx + dy*dy);
+                        if (dist < this.config.mouseDist) {
+                            const force = (this.config.mouseDist - dist) / this.config.mouseDist;
+                            const dxForce = (dx / dist) * force * 0.6;
+                            const dyForce = (dy / dist) * force * 0.6;
+                            p.x -= dxForce;
+                            p.y -= dyForce;
+                        }
+                    }
+
+                    // Draw Particle
+                    this.ctx.fillStyle = this.config.color + '0.5)';
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+
+                    // Draw Connections
+                    for (let j = i; j < this.particles.length; j++) {
+                        let p2 = this.particles[j];
+                        let dx = p.x - p2.x;
+                        let dy = p.y - p2.y;
+                        let dist = Math.sqrt(dx*dx + dy*dy);
+
+                        if (dist < this.config.connDist) {
+                            this.ctx.beginPath();
+                            let opacity = 1 - (dist / this.config.connDist);
+                            this.ctx.strokeStyle = this.config.color + (opacity * 0.2) + ')';
+                            this.ctx.lineWidth = 1;
+                            this.ctx.moveTo(p.x, p.y);
+                            this.ctx.lineTo(p2.x, p2.y);
+                            this.ctx.stroke();
                         }
                     }
                 }
-                requestAnimationFrame(animate);
+                requestAnimationFrame(this.animate.bind(this));
             }
+        }
 
-            window.addEventListener('resize', () => { resize(); init(); });
-            resize();
-            init();
-            animate();
-        };
-
-        // --- ALPINE.JS APP LOGIC ---
+        // 3. MAIN APPLICATION STATE (Alpine.js)
         function authApp() {
             return {
-                /* --- REACTIVE STATE --- */
+                /* STATE VARIABLES */
                 mode: 'login', // 'login' or 'signup'
                 email: '',
                 password: '',
                 showPassword: false,
                 loading: false,
                 loadingText: 'Authenticating...',
-                shakeButton: false, // Triggers error animation
+                shakeButton: false, // Error animation trigger
                 toasts: [],
                 
                 // Validation State
@@ -549,29 +566,30 @@
                 privacyModal: false,
                 forgotPasswordModal: false,
 
-                /* --- LIFECYCLE HOOKS --- */
+                /* LIFECYCLE */
                 init() {
-                    // Initialize particle system
+                    // Start Particle Engine safely
                     this.$nextTick(() => {
-                        initParticles();
+                        try {
+                            new ParticleEngine('particle-canvas');
+                        } catch(e) { console.warn('Particle engine skipped'); }
                     });
 
-                    // Check URL params for mode switching
+                    // Check for URL parameters (e.g., redirect from email link)
                     const urlParams = new URLSearchParams(window.location.search);
                     if (urlParams.get('action') === 'signup') this.mode = 'signup';
                     
-                    // Listen for custom events
+                    // Listen for global notification events
                     window.addEventListener('notify', (e) => {
                         this.showToast(e.detail.title, e.detail.message);
                     });
                 },
 
-                /* --- INTERACTION HANDLERS --- */
+                /* ACTIONS */
                 switchMode(newMode) {
                     this.mode = newMode;
-                    this.error = null;
                     this.shakeButton = false;
-                    // Reset validation visuals but keep data
+                    // Reset validation visuals when switching
                     if(newMode === 'login') {
                         this.strength = 0;
                         this.strengthText = '';
@@ -584,7 +602,7 @@
                     this.forgotPasswordModal = false;
                 },
 
-                /* --- VALIDATION LOGIC --- */
+                /* VALIDATION LOGIC */
                 validateEmail() {
                     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                     this.isEmailValid = re.test(this.email);
@@ -606,11 +624,11 @@
                     this.strengthText = texts[this.strength];
                 },
 
-                /* --- AUTHENTICATION LOGIC --- */
+                /* SUBMISSION LOGIC */
                 async handleSubmit() {
                     this.shakeButton = false;
 
-                    // Basic Validation
+                    // 1. Client-Side Validation
                     if (!this.email || !this.password) {
                         this.triggerError('Missing Fields', 'Please fill in all required fields.');
                         return;
@@ -621,13 +639,14 @@
                         return;
                     }
 
+                    // 2. Prepare API Call
                     this.loading = true;
                     this.loadingText = this.mode === 'login' ? 'Verifying Credentials...' : 'Creating Account...';
 
                     try {
                         let result;
                         
-                        // --- SUPABASE CALLS ---
+                        // 3. Supabase Interaction
                         if (this.mode === 'signup') {
                             result = await supabase.auth.signUp({
                                 email: this.email,
@@ -650,33 +669,39 @@
 
                         if (error) throw error;
 
-                        // --- SUCCESS HANDLING ---
+                        // 4. Success Handling
                         if (this.mode === 'signup') {
                             if (data.user && !data.session) {
+                                // Email Confirmation Required
                                 this.showToast('Check your email', 'We sent a confirmation link to activate your account.', 'success');
                                 this.loading = false;
                             } else {
+                                // Auto-Login
                                 this.showToast('Success', 'Account created. Redirecting...', 'success');
                                 setTimeout(() => window.location.href = 'index.html', 1500);
                             }
                         } else {
+                            // Login Success
                             this.showToast('Welcome Back', 'Access granted. Entering the Inner Circle...', 'success');
                             setTimeout(() => window.location.href = 'index.html', 1000);
                         }
 
                     } catch (err) {
-                        // --- ERROR HANDLING ---
+                        // 5. Error Handling
                         console.error('Auth Error:', err);
                         
                         let title = 'Authentication Failed';
                         let msg = err.message;
 
-                        // Map Supabase errors to user-friendly messages
+                        // Map Supabase specific errors to user-friendly messages
                         if (msg.includes('Invalid login credentials')) {
                             msg = 'Incorrect email or password. Please try again.';
                         } else if (msg.includes('User already registered')) {
                             title = 'Account Exists';
                             msg = 'This email is already registered. Please sign in.';
+                        } else if (msg.includes('rate limit')) {
+                            title = 'Whoa there!';
+                            msg = 'Too many attempts. Please wait a moment.';
                         }
 
                         this.triggerError(title, msg);
@@ -684,10 +709,11 @@
                     }
                 },
 
-                /* --- UTILITIES --- */
+                /* UTILITIES */
                 triggerError(title, message) {
                     this.showToast(title, message, 'error');
                     this.shakeButton = true;
+                    // Reset shake animation after it plays
                     setTimeout(() => this.shakeButton = false, 500);
                 },
 
@@ -695,7 +721,7 @@
                     const id = Date.now();
                     this.toasts.push({ id, title, message, type, visible: true });
                     
-                    // Auto-dismiss
+                    // Auto-dismiss logic
                     setTimeout(() => {
                         this.removeToast(id);
                     }, 5000);
@@ -704,8 +730,9 @@
                 removeToast(id) {
                     const index = this.toasts.findIndex(t => t.id === id);
                     if (index > -1) {
+                        // Fade out first
                         this.toasts[index].visible = false;
-                        // Allow animation to finish before removing from array
+                        // Then remove from array
                         setTimeout(() => {
                             this.toasts = this.toasts.filter(t => t.id !== id);
                         }, 300);
