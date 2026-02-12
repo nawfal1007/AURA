@@ -1,21 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AURA | Access The Inner Circle</title>
+    <title>Login | AURA APPAREL</title>
+    <meta name="description" content="Login to your Aura Apparel account.">
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
 
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        aura: { base: '#F9F7F2', dark: '#0e231f', forest: '#15302a', charcoal: '#2D2D2D', accent: '#C5A065', error: '#9B2C2C', success: '#2F855A' }
+                        aura: {
+                            base: '#F9F7F2',    /* "Rice Paper" Off-White */
+                            dark: '#15302a',    /* "Borneo" Deep Green */
+                            charcoal: '#2D2D2D',
+                            accent: '#C5A065',  /* "Rattan" Gold */
+                            sand: '#E6E2DD',
+                            terra: '#B08E77',
+                            error: '#9B2C2C',
+                            success: '#2F855A'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Lato', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                        serif: ['Playfair Display', 'ui-serif', 'Georgia', 'serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        }
                     }
                 }
             }
@@ -24,129 +47,265 @@
 
     <style>
         [x-cloak] { display: none !important; }
-        .animate-shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
-        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
+        
+        /* Glassmorphism Utilities */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .loading-spinner {
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 2px solid #fff;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 
-<body class="bg-aura-base text-aura-charcoal antialiased min-h-screen flex flex-col items-center justify-center p-6" x-data="authApp()" x-init="checkConnection()">
+<body class="bg-aura-base text-aura-charcoal antialiased h-screen flex flex-col" x-data="authApp()">
 
-    <div class="fixed top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold tracking-widest uppercase border"
-         :class="connectionStatus === 'online' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'">
-        <div class="w-2 h-2 rounded-full animate-pulse" :class="connectionStatus === 'online' ? 'bg-green-500' : 'bg-red-500'"></div>
-        Supabase: <span x-text="connectionStatus"></span>
-    </div>
-
-    <div class="fixed top-6 right-6 z-[70] flex flex-col gap-3 pointer-events-none">
+    <div class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none">
         <template x-for="toast in toasts" :key="toast.id">
-            <div x-show="toast.visible" x-transition class="px-6 py-5 rounded shadow-2xl bg-white border-l-4 pointer-events-auto min-w-[300px]"
-                 :class="toast.type === 'error' ? 'text-aura-error border-aura-error' : 'text-aura-dark border-aura-accent'">
-                <p class="text-xs font-bold uppercase tracking-widest mb-1" x-text="toast.title"></p>
-                <p class="text-xs opacity-80" x-text="toast.message"></p>
+            <div x-show="toast.visible" 
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-x-8"
+                 x-transition:enter-end="opacity-100 translate-x-0"
+                 x-transition:leave="transition ease-in duration-300"
+                 x-transition:leave-start="opacity-100 translate-x-0"
+                 x-transition:leave-end="opacity-0 translate-x-8"
+                 class="bg-aura-dark text-white px-6 py-4 rounded shadow-2xl flex items-center gap-4 min-w-[300px] pointer-events-auto border-l-4"
+                 :class="toast.type === 'error' ? 'border-aura-error' : 'border-aura-success'">
+                <i class="ph-fill text-xl" :class="toast.type === 'error' ? 'ph-warning-circle text-aura-error' : 'ph-check-circle text-aura-success'"></i>
+                <div>
+                    <h4 class="font-bold text-xs uppercase tracking-wider" x-text="toast.title"></h4>
+                    <p class="text-xs text-white/80" x-text="toast.message"></p>
+                </div>
             </div>
         </template>
     </div>
 
-    <div class="w-full max-w-sm bg-white p-10 rounded-sm shadow-sm border border-gray-100">
-        <div class="text-center mb-10">
-            <h1 class="text-3xl font-serif font-bold tracking-[0.2em] uppercase text-aura-dark">AURA<span class="text-aura-accent">.</span></h1>
-            <p class="text-[10px] text-gray-400 mt-2 uppercase tracking-widest">Secure Access</p>
+    <header class="absolute top-0 w-full z-40 p-6 md:p-8">
+        <div class="flex justify-between items-center">
+            <a href="index.html" class="group flex items-center gap-2 text-aura-dark hover:text-aura-accent transition">
+                <i class="ph ph-arrow-left text-lg group-hover:-translate-x-1 transition-transform"></i>
+                <span class="text-xs font-bold uppercase tracking-widest">Back to Shop</span>
+            </a>
+            <a href="index.html">
+                <h1 class="text-2xl font-serif font-bold tracking-[0.2em] uppercase text-aura-dark">Aura<span class="text-aura-accent">.</span></h1>
+            </a>
+            <div class="w-20"></div>
+        </div>
+    </header>
+
+    <main class="flex-1 flex w-full h-full">
+        
+        <div class="hidden lg:block w-1/2 h-full relative overflow-hidden bg-aura-dark">
+            <img src="https://images.unsplash.com/photo-1532453288672-3a27e9be9efd?q=80&w=2000" 
+                 alt="Aura Lifestyle" 
+                 class="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-overlay">
+            <div class="absolute inset-0 bg-gradient-to-t from-aura-dark/90 via-transparent to-aura-dark/40"></div>
+            
+            <div class="absolute bottom-12 left-12 right-12 text-white">
+                <div class="border-l-2 border-aura-accent pl-6 mb-4">
+                    <p class="font-serif text-3xl italic leading-relaxed text-white/90">
+                        "Sustainable fashion is not a trend, but the future. Join us in making a difference."
+                    </p>
+                </div>
+                <p class="text-xs uppercase tracking-widest text-aura-accent font-bold">The Aura Philosophy</p>
+            </div>
         </div>
 
-        <div class="flex border-b mb-8">
-            <button @click="mode = 'login'" class="flex-1 pb-4 text-[10px] font-bold uppercase tracking-widest" :class="mode === 'login' ? 'text-aura-dark border-b-2 border-aura-dark' : 'text-gray-300'">Login</button>
-            <button @click="mode = 'signup'" class="flex-1 pb-4 text-[10px] font-bold uppercase tracking-widest" :class="mode === 'signup' ? 'text-aura-dark border-b-2 border-aura-dark' : 'text-gray-300'">Register</button>
-        </div>
+        <div class="w-full lg:w-1/2 h-full flex items-center justify-center p-6 bg-white/50 relative">
+            <div class="absolute inset-0 opacity-[0.03] pointer-events-none" 
+                 style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\' fill=\'%23000000\' fill-opacity=\'1\' fill-rule=\'evenodd\'/%3E%3C/svg%3E');">
+            </div>
 
-        <form @submit.prevent="handleSubmit" class="space-y-6">
-            <div>
-                <input type="email" x-model="email" placeholder="Email" required class="w-full border-b border-gray-200 py-3 outline-none focus:border-aura-dark text-sm transition-all">
+            <div class="w-full max-w-md animate-fade-in relative z-10">
+                <div class="text-center mb-10">
+                    <h2 class="text-4xl font-serif text-aura-dark mb-3" x-text="isLogin ? 'Welcome Back' : 'Join the Circle'"></h2>
+                    <p class="text-aura-charcoal/60 text-sm" x-text="isLogin ? 'Please enter your details to sign in.' : 'Create an account to start your journey.'"></p>
+                </div>
+
+                <form @submit.prevent="handleAuth" class="space-y-5">
+                    
+                    <div class="group">
+                        <label class="block text-xs font-bold uppercase tracking-widest text-aura-dark mb-2">Email Address</label>
+                        <div class="relative">
+                            <i class="ph ph-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-aura-accent transition"></i>
+                            <input type="email" 
+                                   x-model="email"
+                                   required
+                                   placeholder="name@example.com" 
+                                   class="w-full bg-white border border-gray-200 pl-12 pr-4 py-3 focus:outline-none focus:border-aura-dark focus:ring-1 focus:ring-aura-dark transition rounded-sm placeholder-gray-300">
+                        </div>
+                    </div>
+
+                    <div class="group">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-xs font-bold uppercase tracking-widest text-aura-dark">Password</label>
+                            <a href="#" class="text-[10px] text-gray-400 hover:text-aura-dark underline transition" x-show="isLogin">Forgot password?</a>
+                        </div>
+                        <div class="relative">
+                            <i class="ph ph-lock-key absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-aura-accent transition"></i>
+                            <input :type="showPassword ? 'text' : 'password'" 
+                                   x-model="password"
+                                   required
+                                   placeholder="••••••••" 
+                                   class="w-full bg-white border border-gray-200 pl-12 pr-10 py-3 focus:outline-none focus:border-aura-dark focus:ring-1 focus:ring-aura-dark transition rounded-sm placeholder-gray-300">
+                            
+                            <button type="button" 
+                                    @click="showPassword = !showPassword"
+                                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-aura-dark p-1">
+                                <i :class="showPassword ? 'ph ph-eye-slash' : 'ph ph-eye'"></i>
+                            </button>
+                        </div>
+                        <p x-show="!isLogin" class="text-[10px] text-gray-400 mt-1 italic">Must be at least 6 characters.</p>
+                    </div>
+
+                    <button type="submit" 
+                            :disabled="loading"
+                            class="w-full bg-aura-dark text-white py-4 mt-4 text-xs font-bold uppercase tracking-widest hover:bg-aura-accent hover:text-white transition duration-300 shadow-lg hover:shadow-aura-accent/20 rounded-sm flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                        <span x-show="loading" class="loading-spinner"></span>
+                        <span x-text="loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Create Account')"></span>
+                    </button>
+
+                </form>
+
+                <div class="mt-8 text-center border-t border-gray-100 pt-8">
+                    <p class="text-sm text-gray-500">
+                        <span x-text="isLogin ? 'New to Aura Apparel?' : 'Already have an account?'"></span>
+                        <button @click="toggleMode" 
+                                class="text-aura-dark font-bold hover:text-aura-accent underline transition ml-1 decoration-aura-accent/30 underline-offset-4">
+                            <span x-text="isLogin ? 'Create an Account' : 'Sign In'"></span>
+                        </button>
+                    </p>
+                </div>
+                
+                <p class="mt-12 text-[10px] text-center text-gray-400 leading-tight max-w-xs mx-auto">
+                    By accessing your account, you agree to our 
+                    <a href="#" class="underline hover:text-aura-dark">Terms of Service</a> and 
+                    <a href="#" class="underline hover:text-aura-dark">Privacy Policy</a>.
+                </p>
             </div>
-            <div>
-                <input type="password" x-model="password" placeholder="Password" required class="w-full border-b border-gray-200 py-3 outline-none focus:border-aura-dark text-sm transition-all">
-            </div>
-            <button type="submit" :disabled="loading" 
-                    class="w-full bg-aura-dark text-white py-4 text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-aura-forest transition-all disabled:opacity-50"
-                    :class="{'animate-shake': shakeButton}">
-                <span x-text="loading ? 'Processing...' : (mode === 'login' ? 'Sign In' : 'Create Account')"></span>
-            </button>
-        </form>
-    </div>
+        </div>
+    </main>
 
     <script>
-        const S_URL = 'https://xenosyklkpisszqwibdw.supabase.co';
-        const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhlbm9zeWtsa3Bpc3N6cXdpYmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4NTkxNzcsImV4cCI6MjA4NjQzNTE3N30.A_WVC9GRa7USe2DPbzVUWw3TuBHnyImVqBZnzuPJbMw';
-        
-        let sb;
-
         function authApp() {
             return {
-                mode: 'login',
+                /* SUPABASE CLIENT CONFIG */
+                supabase: null,
+                
+                /* STATE */
+                isLogin: true,
+                loading: false,
                 email: '',
                 password: '',
-                loading: false,
-                shakeButton: false,
-                connectionStatus: 'checking...',
+                showPassword: false,
+                
+                /* TOAST SYSTEM */
                 toasts: [],
+                showToast(title, message, type = 'success') {
+                    const id = Date.now();
+                    this.toasts.push({ id, title, message, type, visible: true });
+                    setTimeout(() => {
+                        const index = this.toasts.findIndex(t => t.id === id);
+                        if (index > -1) this.toasts[index].visible = false;
+                        setTimeout(() => this.toasts = this.toasts.filter(t => t.id !== id), 300);
+                    }, 4000);
+                },
 
-                checkConnection() {
-                    console.log("Checking Supabase Connection...");
-                    try {
-                        if (typeof supabase !== 'undefined') {
-                            sb = supabase.createClient(S_URL, S_KEY);
-                            this.connectionStatus = 'online';
-                            console.log("✔ Supabase Client Ready");
-                        } else {
-                            this.connectionStatus = 'offline';
-                            this.showToast("Library Error", "Gagal memuat script Supabase. Cek internet/Ad-blocker.", "error");
-                        }
-                    } catch (e) {
-                        this.connectionStatus = 'error';
-                        console.error(e);
+                /* INIT */
+                init() {
+                    // Initialize Supabase with provided credentials
+                    const sbUrl = 'https://xenosyklkpisszqwibdw.supabase.co';
+                    const sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhlbm9zeWtsa3Bpc3N6cXdpYmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4NTkxNzcsImV4cCI6MjA4NjQzNTE3N30.A_WVC9GRa7USe2DPbzVUWw3TuBHnyImVqBZnzuPJbMw';
+                    
+                    if (typeof supabase !== 'undefined') {
+                        this.supabase = supabase.createClient(sbUrl, sbKey);
+                        
+                        // Check if user is already logged in
+                        this.checkSession();
+                    } else {
+                        console.error('Supabase client library not loaded');
+                        this.showToast('System Error', 'Could not load authentication services.', 'error');
                     }
                 },
 
-                async handleSubmit() {
-                    if (!sb) {
-                        this.showToast("Koneksi Gagal", "Supabase belum terhubung.", "error");
+                async checkSession() {
+                    const { data: { session } } = await this.supabase.auth.getSession();
+                    if (session) {
+                        // Redirect if already logged in
+                        window.location.href = 'index.html';
+                    }
+                },
+
+                toggleMode() {
+                    this.isLogin = !this.isLogin;
+                    this.password = ''; // Clear password for security on toggle
+                    this.showToast('Mode Switched', this.isLogin ? 'Switched to Login' : 'Switched to Sign Up', 'success');
+                },
+
+                async handleAuth() {
+                    if (!this.email || !this.password) {
+                        this.showToast('Validation Error', 'Please fill in all fields.', 'error');
                         return;
                     }
 
                     this.loading = true;
-                    this.shakeButton = false;
 
                     try {
-                        console.log(`Attempting ${this.mode} for: ${this.email}`);
-                        
-                        let res;
-                        if (this.mode === 'signup') {
-                            res = await sb.auth.signUp({ 
-                                email: this.email, 
+                        if (this.isLogin) {
+                            // SIGN IN LOGIC
+                            const { data, error } = await this.supabase.auth.signInWithPassword({
+                                email: this.email,
                                 password: this.password,
-                                options: { emailRedirectTo: window.location.origin }
                             });
+
+                            if (error) throw error;
+
+                            this.showToast('Welcome Back', 'Login successful. Redirecting...', 'success');
+                            
+                            // Short delay to show success message before redirect
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 1000);
+
                         } else {
-                            res = await sb.auth.signInWithPassword({ email: this.email, password: this.password });
+                            // SIGN UP LOGIC
+                            const { data, error } = await this.supabase.auth.signUp({
+                                email: this.email,
+                                password: this.password,
+                            });
+
+                            if (error) throw error;
+
+                            // Handle case where email confirmation is required vs auto-login
+                            if (data.session) {
+                                this.showToast('Account Created', 'Welcome to Aura Apparel! Redirecting...', 'success');
+                                setTimeout(() => {
+                                    window.location.href = 'index.html';
+                                }, 1000);
+                            } else {
+                                this.showToast('Check your Email', 'Please verify your email address to continue.', 'success');
+                                this.isLogin = true; // Switch back to login view
+                            }
                         }
-
-                        if (res.error) throw res.error;
-
-                        console.log("✔ Success:", res.data);
-                        this.showToast("Success", "Silahkan cek Dashboard atau Email Anda!", "success");
-
-                    } catch (err) {
-                        console.error("❌ Supabase Error:", err);
-                        this.showToast("Gagal", err.message, "error");
-                        this.shakeButton = true;
+                    } catch (error) {
+                        this.showToast('Authentication Failed', error.message || 'An unexpected error occurred.', 'error');
                     } finally {
                         this.loading = false;
                     }
-                },
-
-                showToast(title, message, type) {
-                    const id = Date.now();
-                    this.toasts.push({ id, title, message, type, visible: true });
-                    setTimeout(() => this.toasts = this.toasts.filter(t => t.id !== id), 5000);
                 }
             }
         }
