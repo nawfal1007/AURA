@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | AURA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        aura: {
+                            base: '#F9F7F2',
+                            dark: '#15302a',
+                            accent: '#C5A065',
+                            error: '#9B2C2C',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans" x-data="adminApp()">
+
+    <template x-if="!session">
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-aura-dark/90 backdrop-blur-sm">
+            <div class="bg-white p-8 rounded-lg shadow-2xl max-w-md w-full text-center">
+                <i class="ph ph-lock-key text-4xl text-aura-accent mb-4"></i>
+                <h2 class="text-2xl font-bold mb-2">Admin Access Required</h2>
+                <p class="text-gray-500 mb-6">Please log in to manage your store.</p>
+                <a href="loginpage.html" class="inline-block bg-aura-dark text-white px-6 py-3 rounded uppercase text-xs font-bold tracking-widest hover:bg-aura-accent transition">
+                    Go to Login
+                </a>
+            </div>
+        </div>
+    </template>
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <aside class="w-64 bg-aura-dark text-white flex flex-col">
+            <div class="p-6">
+                <h1 class="text-2xl font-serif font-bold tracking-widest">AURA<span class="text-aura-accent">.</span></h1>
+                <p class="text-[10px] uppercase tracking-widest opacity-50 mt-1">Admin Console</p>
+            </div>
+            
+            <nav class="flex-1 px-4 space-y-2 mt-4">
+                <a href="#" class="flex items-center gap-3 px-4 py-3 bg-white/10 rounded text-sm font-bold border-l-2 border-aura-accent">
+                    <i class="ph ph-t-shirt text-lg"></i> Products
+                </a>
+                <a href="#" class="flex items-center gap-3 px-4 py-3 text-white/50 hover:text-white hover:bg-white/5 rounded text-sm font-bold transition">
+                    <i class="ph ph-users text-lg"></i> Customers (Soon)
+                </a>
+                <a href="index.html" target="_blank" class="flex items-center gap-3 px-4 py-3 text-white/50 hover:text-white hover:bg-white/5 rounded text-sm font-bold transition mt-8">
+                    <i class="ph ph-arrow-square-out text-lg"></i> View Live Site
+                </a>
+            </nav>
+
+            <div class="p-6 border-t border-white/10">
+                <button @click="handleLogout" class="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-aura-error hover:text-white transition">
+                    <i class="ph ph-sign-out text-lg"></i> Sign Out
+                </button>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto bg-gray-50 p-8">
+            
+            <header class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-800">Product Inventory</h2>
+                <button @click="openModal()" class="bg-aura-dark text-white px-6 py-3 rounded shadow hover:bg-aura-accent transition flex items-center gap-2 text-xs font-bold uppercase tracking-widest">
+                    <i class="ph ph-plus text-lg"></i> Add New Product
+                </button>
+            </header>
+
+            <div class="bg-white rounded-lg shadow border border-gray-200 overflow-hidden">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-gray-50 text-xs font-bold uppercase text-gray-500 tracking-wider">
+                        <tr>
+                            <th class="p-4 border-b">Image</th>
+                            <th class="p-4 border-b">Product Name</th>
+                            <th class="p-4 border-b">Category</th>
+                            <th class="p-4 border-b">Price (IDR)</th>
+                            <th class="p-4 border-b">Badge</th>
+                            <th class="p-4 border-b text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <template x-if="loading">
+                            <tr><td colspan="6" class="p-8 text-center text-gray-400">Loading inventory...</td></tr>
+                        </template>
+
+                        <template x-for="product in products" :key="product.id">
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="p-4">
+                                    <div class="h-12 w-12 rounded bg-gray-100 overflow-hidden border border-gray-200">
+                                        <img :src="product.image" class="w-full h-full object-cover">
+                                    </div>
+                                </td>
+                                <td class="p-4 font-bold text-gray-800" x-text="product.name"></td>
+                                <td class="p-4 text-sm text-gray-500" x-text="product.category"></td>
+                                <td class="p-4 text-sm font-mono" x-text="formatMoney(product.price)"></td>
+                                <td class="p-4">
+                                    <span x-show="product.badge" class="bg-aura-accent/10 text-aura-accent text-[10px] font-bold px-2 py-1 rounded uppercase" x-text="product.badge"></span>
+                                </td>
+                                <td class="p-4 text-right">
+                                    <button @click="deleteProduct(product.id)" class="text-gray-400 hover:text-aura-error transition p-2" title="Delete">
+                                        <i class="ph ph-trash text-lg"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </template>
+                        
+                        <template x-if="!loading && products.length === 0">
+                            <tr><td colspan="6" class="p-8 text-center text-gray-400 italic">No products found. Add one to get started.</td></tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+        </main>
+    </div>
+
+    <div x-show="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4" x-cloak>
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="closeModal()"></div>
+        
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-lg relative z-10 overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-aura-dark text-white p-4 flex justify-between items-center">
+                <h3 class="font-bold uppercase tracking-widest text-sm">Add New Product</h3>
+                <button @click="closeModal()" class="hover:text-aura-accent"><i class="ph ph-x text-xl"></i></button>
+            </div>
+            
+            <form @submit.prevent="saveProduct" class="p-6 overflow-y-auto space-y-4">
+                
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Product Image</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition cursor-pointer relative">
+                        <input type="file" @change="handleImageSelect" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" required>
+                        <div x-show="!imagePreview">
+                            <i class="ph ph-image text-3xl text-gray-300 mb-2"></i>
+                            <p class="text-xs text-gray-400">Click to upload image</p>
+                        </div>
+                        <div x-show="imagePreview" class="relative h-32 w-full">
+                            <img :src="imagePreview" class="h-full w-full object-contain mx-auto">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Name</label>
+                        <input type="text" x-model="form.name" required class="w-full border border-gray-300 rounded p-2 text-sm focus:border-aura-dark outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Price (IDR)</label>
+                        <input type="number" x-model="form.price" required class="w-full border border-gray-300 rounded p-2 text-sm focus:border-aura-dark outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Category</label>
+                        <select x-model="form.category" class="w-full border border-gray-300 rounded p-2 text-sm focus:border-aura-dark outline-none">
+                            <option value="Tops">Tops</option>
+                            <option value="Bottoms">Bottoms</option>
+                            <option value="Dresses">Dresses</option>
+                            <option value="Outerwear">Outerwear</option>
+                            <option value="Accessories">Accessories</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase text-gray-500 mb-1">Badge (Optional)</label>
+                        <input type="text" x-model="form.badge" placeholder="e.g. Organic" class="w-full border border-gray-300 rounded p-2 text-sm focus:border-aura-dark outline-none">
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" x-model="form.is_new" id="newCheck" class="rounded text-aura-dark focus:ring-aura-dark">
+                    <label for="newCheck" class="text-sm text-gray-600">Mark as "New Arrival"</label>
+                </div>
+
+                <div class="pt-4 border-t border-gray-100 flex justify-end gap-3">
+                    <button type="button" @click="closeModal()" class="px-4 py-2 text-xs font-bold uppercase text-gray-500 hover:text-gray-800">Cancel</button>
+                    <button type="submit" :disabled="uploading" class="bg-aura-dark text-white px-6 py-2 rounded text-xs font-bold uppercase tracking-widest hover:bg-aura-accent disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                        <span x-show="uploading" class="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                        <span x-text="uploading ? 'Saving...' : 'Save Product'"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function adminApp() {
+            return {
+                supabase: null,
+                session: null,
+                products: [],
+                loading: true,
+                uploading: false,
+                isModalOpen: false,
+                
+                // Form State
+                imageFile: null,
+                imagePreview: null,
+                form: {
+                    name: '',
+                    price: '',
+                    category: 'Tops',
+                    badge: '',
+                    is_new: false
+                },
+
+                init() {
+                    const sbUrl = 'https://xenosyklkpisszqwibdw.supabase.co';
+                    const sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhlbm9zeWtsa3Bpc3N6cXdpYmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4NTkxNzcsImV4cCI6MjA4NjQzNTE3N30.A_WVC9GRa7USe2DPbzVUWw3TuBHnyImVqBZnzuPJbMw';
+                    
+                    if (typeof supabase !== 'undefined') {
+                        this.supabase = supabase.createClient(sbUrl, sbKey);
+                        this.checkSession();
+                    }
+                },
+
+                async checkSession() {
+                    const { data: { session } } = await this.supabase.auth.getSession();
+                    this.session = session;
+                    if (session) {
+                        this.fetchProducts();
+                    }
+                },
+
+                async fetchProducts() {
+                    this.loading = true;
+                    const { data, error } = await this.supabase
+                        .from('products')
+                        .select('*')
+                        .order('created_at', { ascending: false });
+                    
+                    if (error) console.error('Error fetching products:', error);
+                    else this.products = data;
+                    
+                    this.loading = false;
+                },
+
+                handleImageSelect(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        this.imageFile = file;
+                        this.imagePreview = URL.createObjectURL(file);
+                    }
+                },
+
+                async saveProduct() {
+                    if (!this.imageFile) {
+                        alert('Please upload an image');
+                        return;
+                    }
+
+                    this.uploading = true;
+                    
+                    try {
+                        // 1. Upload Image to Supabase Storage
+                        const fileExt = this.imageFile.name.split('.').pop();
+                        const fileName = `${Date.now()}.${fileExt}`;
+                        const filePath = `${fileName}`;
+
+                        const { error: uploadError } = await this.supabase.storage
+                            .from('product-images')
+                            .upload(filePath, this.imageFile);
+
+                        if (uploadError) throw uploadError;
+
+                        // 2. Get Public URL
+                        const { data: { publicUrl } } = this.supabase.storage
+                            .from('product-images')
+                            .getPublicUrl(filePath);
+
+                        // 3. Insert into DB
+                        const { error: dbError } = await this.supabase
+                            .from('products')
+                            .insert({
+                                name: this.form.name,
+                                price: this.form.price,
+                                category: this.form.category,
+                                badge: this.form.badge,
+                                is_new: this.form.is_new,
+                                image: publicUrl
+                            });
+
+                        if (dbError) throw dbError;
+
+                        // Success
+                        this.closeModal();
+                        this.fetchProducts(); // Refresh list
+                        alert('Product added successfully!');
+
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error saving product: ' + error.message);
+                    } finally {
+                        this.uploading = false;
+                    }
+                },
+
+                async deleteProduct(id) {
+                    if (!confirm('Are you sure? This cannot be undone.')) return;
+
+                    const { error } = await this.supabase
+                        .from('products')
+                        .delete()
+                        .eq('id', id);
+
+                    if (error) {
+                        alert('Error deleting product.');
+                    } else {
+                        this.fetchProducts(); // Refresh list
+                    }
+                },
+
+                async handleLogout() {
+                    await this.supabase.auth.signOut();
+                    window.location.href = 'loginpage.html';
+                },
+
+                openModal() {
+                    this.isModalOpen = true;
+                },
+
+                closeModal() {
+                    this.isModalOpen = false;
+                    this.resetForm();
+                },
+
+                resetForm() {
+                    this.imageFile = null;
+                    this.imagePreview = null;
+                    this.form = { name: '', price: '', category: 'Tops', badge: '', is_new: false };
+                },
+
+                formatMoney(amount) {
+                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumSignificantDigits: 9 }).format(amount);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
