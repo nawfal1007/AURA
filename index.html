@@ -20,10 +20,10 @@
                 extend: {
                     colors: {
                         aura: {
-                            base: '#F9F7F2',    /* "Rice Paper" Off-White */
-                            dark: '#15302a',    /* "Borneo" Deep Green */
+                            base: '#F9F7F2',
+                            dark: '#15302a',
                             charcoal: '#2D2D2D',
-                            accent: '#C5A065',  /* "Rattan" Gold */
+                            accent: '#C5A065',
                             sand: '#E6E2DD',
                             terra: '#B08E77',
                             error: '#9B2C2C',
@@ -31,22 +31,17 @@
                         }
                     },
                     fontFamily: {
-                        sans: ['Lato', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-                        serif: ['Playfair Display', 'ui-serif', 'Georgia', 'serif'],
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
                     },
                     animation: {
                         'fade-in-up': 'fadeInUp 0.8s ease-out forwards',
-                        'slide-in-right': 'slideInRight 0.5s ease-out forwards',
                         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                     },
                     keyframes: {
                         fadeInUp: {
                             '0%': { opacity: '0', transform: 'translateY(20px)' },
                             '100%': { opacity: '1', transform: 'translateY(0)' },
-                        },
-                        slideInRight: {
-                            '0%': { transform: 'translateX(100%)' },
-                            '100%': { transform: 'translateX(0)' },
                         }
                     }
                 }
@@ -55,52 +50,23 @@
     </script>
 
     <style>
-        /* Anti-FOUC (Flash of Unstyled Content) */
         [x-cloak] { display: none !important; }
-        
-        /* Glassmorphism Utilities */
         .glass-nav {
             background: rgba(249, 247, 242, 0.90);
             backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
             border-bottom: 1px solid rgba(21, 48, 42, 0.05);
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
         }
-
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
         .glass-card {
             background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
         }
-
-        /* Typography Enhancements */
-        .text-shadow-sm { text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        
-        /* Scrollbar Hiding */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* Smooth Anchor Offsets */
-        html { scroll-padding-top: 100px; }
-        
-        /* Loading Spinner */
         .spinner {
             border: 2px solid rgba(255, 255, 255, 0.1);
             border-left-color: #C5A065;
             border-radius: 50%;
-            width: 16px;
-            height: 16px;
+            width: 24px;
+            height: 24px;
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -134,7 +100,6 @@
          x-transition:enter-start="opacity-0 translate-y-8"
          x-transition:enter-end="opacity-100 translate-y-0"
          class="fixed bottom-6 left-6 z-40 flex items-center gap-3">
-        
         <div class="glass-card p-4 rounded-lg flex items-center gap-4 text-aura-dark">
             <div class="w-10 h-10 bg-aura-dark text-aura-accent rounded-full flex items-center justify-center text-lg font-bold">
                 <span x-text="userInitials"></span>
@@ -152,9 +117,7 @@
 
     <header class="fixed top-0 w-full z-40 transition-all duration-500 ease-in-out"
             :class="scrolled ? 'glass-nav text-aura-dark' : 'bg-transparent py-8 text-white'">
-        
         <div class="container mx-auto px-6 flex justify-between items-center">
-            
             <div class="flex items-center gap-4 w-1/3">
                 <button @click="mobileMenuOpen = true" class="lg:hidden hover:text-aura-accent transition p-2 -ml-2">
                     <i class="ph ph-list text-2xl"></i>
@@ -164,7 +127,6 @@
                     <span class="text-[10px] font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0">Search</span>
                 </button>
             </div>
-
             <div class="w-1/3 text-center">
                 <a href="#" class="inline-block group">
                     <h1 class="text-2xl md:text-3xl font-serif font-bold tracking-[0.2em] uppercase transition-colors group-hover:text-aura-accent">
@@ -172,32 +134,18 @@
                     </h1>
                 </a>
             </div>
-
             <div class="flex items-center justify-end gap-6 w-1/3">
                 <nav class="hidden lg:flex gap-8 text-[11px] font-bold tracking-widest uppercase">
-                    <a href="#shop" class="hover:text-aura-accent transition relative group">
-                        Shop
-                        <span class="absolute -bottom-2 left-0 w-0 h-px bg-aura-accent transition-all duration-300 group-hover:w-full"></span>
-                    </a>
-                    <a href="#about" class="hover:text-aura-accent transition relative group">
-                        Sustainability
-                        <span class="absolute -bottom-2 left-0 w-0 h-px bg-aura-accent transition-all duration-300 group-hover:w-full"></span>
-                    </a>
+                    <a href="#shop" class="hover:text-aura-accent transition relative group">Shop</a>
+                    <a href="#about" class="hover:text-aura-accent transition relative group">Sustainability</a>
                 </nav>
-
                 <div class="h-4 w-px bg-current opacity-20 hidden lg:block"></div>
-
                 <a href="loginpage.html" x-show="!session" class="hidden lg:block hover:text-aura-accent transition" title="Login">
                     <i class="ph ph-user text-xl"></i>
                 </a>
-                
                 <button @click="cartOpen = true" class="relative hover:text-aura-accent transition p-1">
                     <i class="ph ph-tote text-xl"></i>
-                    <span x-show="cartCount > 0" 
-                          x-cloak
-                          x-transition.scale
-                          class="absolute -top-1 -right-1 bg-aura-accent text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-sm"
-                          x-text="cartCount"></span>
+                    <span x-show="cartCount > 0" x-cloak class="absolute -top-1 -right-1 bg-aura-accent text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold shadow-sm" x-text="cartCount"></span>
                 </button>
             </div>
         </div>
@@ -210,60 +158,22 @@
                  class="w-full h-full object-cover object-center animate-pulse-slow scale-105">
             <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/70"></div>
         </div>
-
         <div class="relative z-10 text-center text-white px-4 max-w-5xl mt-10">
             <div class="overflow-hidden mb-6">
                 <span class="inline-block text-aura-accent font-bold tracking-[0.3em] uppercase text-[10px] md:text-xs animate-fade-in-up border border-aura-accent/30 px-4 py-2 rounded-full glass-panel">
                     Summer Collection 2026
                 </span>
             </div>
-            
             <h2 class="text-5xl md:text-7xl lg:text-9xl font-serif font-medium leading-[0.9] mb-8 text-shadow-sm animate-fade-in-up" style="animation-delay: 0.2s;">
-                Ethical Luxury <br>
-                <span class="italic font-light text-white/90">From Java.</span>
+                Ethical Luxury <br><span class="italic font-light text-white/90">From Java.</span>
             </h2>
-            
-            <p class="text-lg md:text-xl font-light text-white/80 max-w-xl mx-auto mb-12 animate-fade-in-up leading-relaxed" style="animation-delay: 0.4s;">
-                Handcrafted using 100% organic fibers and natural plant dyes. <br class="hidden md:block">Designed for the conscious minimalist.
-            </p>
-
             <div class="flex flex-col sm:flex-row gap-5 justify-center animate-fade-in-up" style="animation-delay: 0.6s;">
                 <a href="#shop" class="bg-white text-aura-dark px-12 py-4 uppercase text-xs font-bold tracking-widest hover:bg-aura-accent hover:text-white transition duration-300 shadow-xl rounded-sm">
                     Shop Collection
                 </a>
-                <a href="#about" class="glass-panel text-white px-12 py-4 uppercase text-xs font-bold tracking-widest hover:bg-white hover:text-aura-dark transition duration-300 rounded-sm">
-                    Our Story
-                </a>
             </div>
-        </div>
-        
-        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 text-white animate-bounce cursor-pointer opacity-70 hover:opacity-100 transition">
-            <i class="ph ph-arrow-down text-2xl"></i>
         </div>
     </section>
-
-    <div class="bg-aura-dark text-white py-6 overflow-hidden border-b border-white/5 relative z-20">
-        <div class="container mx-auto px-6">
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-                <div class="flex flex-col md:flex-row items-center justify-center gap-3 opacity-70 hover:opacity-100 transition duration-300 group">
-                    <i class="ph ph-globe-hemisphere-east text-2xl text-aura-accent group-hover:scale-110 transition"></i> 
-                    <span class="text-[10px] uppercase tracking-[0.2em] font-bold">Free Shipping Java</span>
-                </div>
-                <div class="flex flex-col md:flex-row items-center justify-center gap-3 opacity-70 hover:opacity-100 transition duration-300 group">
-                    <i class="ph ph-plant text-2xl text-aura-accent group-hover:scale-110 transition"></i> 
-                    <span class="text-[10px] uppercase tracking-[0.2em] font-bold">100% Organic</span>
-                </div>
-                <div class="flex flex-col md:flex-row items-center justify-center gap-3 opacity-70 hover:opacity-100 transition duration-300 group">
-                    <i class="ph ph-hand-heart text-2xl text-aura-accent group-hover:scale-110 transition"></i> 
-                    <span class="text-[10px] uppercase tracking-[0.2em] font-bold">Fair Trade</span>
-                </div>
-                <div class="flex flex-col md:flex-row items-center justify-center gap-3 opacity-70 hover:opacity-100 transition duration-300 group">
-                    <i class="ph ph-arrow-counter-clockwise text-2xl text-aura-accent group-hover:scale-110 transition"></i> 
-                    <span class="text-[10px] uppercase tracking-[0.2em] font-bold">30-Day Returns</span>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <main id="shop" class="bg-aura-base pt-24 pb-32">
         <div class="container mx-auto px-6">
@@ -274,21 +184,31 @@
                     <p class="text-aura-charcoal/60 max-w-md font-light">Timeless pieces designed to be worn on repeat. Built to last, made to love.</p>
                 </div>
                 <div class="mt-6 md:mt-0">
-                    <span class="text-aura-accent font-bold uppercase tracking-widest text-xs border-b border-aura-accent pb-1">
-                        New Arrivals
-                    </span>
+                    <a href="catalog.html" class="text-aura-accent font-bold uppercase tracking-widest text-xs border-b border-aura-accent pb-1 hover:text-aura-dark transition">
+                        View Full Catalog
+                    </a>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
+            <div x-show="productsLoading" class="flex flex-col items-center justify-center py-20 text-gray-400">
+                <div class="spinner border-aura-dark mb-4"></div>
+                <p class="text-xs uppercase tracking-widest">Loading Collection...</p>
+            </div>
+
+            <div x-show="!productsLoading && products.length === 0" class="text-center py-20 bg-gray-50 rounded border border-gray-100" x-cloak>
+                <p class="text-gray-500 font-serif text-lg mb-2">No products found.</p>
+                <p class="text-xs text-gray-400">Please add products via the Admin Dashboard.</p>
+            </div>
+
+            <div x-show="!productsLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
                 <template x-for="product in products" :key="product.id">
                     <div class="group relative">
                         <div class="relative overflow-hidden bg-gray-200 aspect-[3/4] mb-6">
                             <img :src="product.image" :alt="product.name" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
                             
                             <div class="absolute top-4 left-4 flex flex-col gap-2">
-                                <span class="bg-white/95 backdrop-blur text-aura-dark text-[10px] font-bold uppercase tracking-widest px-3 py-1 shadow-sm" x-text="product.badge"></span>
-                                <span x-show="product.new" class="bg-aura-dark text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 w-max shadow-sm">New</span>
+                                <span x-show="product.badge" class="bg-white/95 backdrop-blur text-aura-dark text-[10px] font-bold uppercase tracking-widest px-3 py-1 shadow-sm" x-text="product.badge"></span>
+                                <span x-show="product.is_new" class="bg-aura-dark text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 w-max shadow-sm">New</span>
                             </div>
 
                             <div class="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/80 to-transparent">
@@ -316,112 +236,8 @@
                     </div>
                 </template>
             </div>
-
-            <div class="mt-20 text-center">
-                <button class="inline-block border-b-2 border-aura-dark pb-1 text-xs font-bold uppercase tracking-widest hover:text-aura-accent hover:border-aura-accent transition duration-300">
-                    View All Products
-                </button>
-            </div>
         </div>
     </main>
-
-    <section id="about" class="py-24 bg-white border-t border-aura-dark/5">
-        <div class="container mx-auto px-6">
-            <div class="grid md:grid-cols-2 gap-16 items-center">
-                
-                <div class="order-2 md:order-1">
-                    <span class="text-aura-accent uppercase tracking-widest text-[10px] font-bold mb-4 block flex items-center gap-2">
-                        <span class="w-8 h-px bg-aura-accent"></span> Our Philosophy
-                    </span>
-                    <h2 class="text-4xl md:text-5xl font-serif text-aura-dark mb-6 leading-tight">Slow Fashion, <br>Deep Roots.</h2>
-                    <p class="text-gray-600 leading-relaxed mb-8 font-light text-lg">
-                        At AURA, we believe that true style should not cost the Earth. We partner with local artisans in Central Java to source ethical cotton and plant-based dyes. Every piece is a testament to the rich textile heritage of Indonesia.
-                    </p>
-                    
-                    <div class="grid grid-cols-2 gap-8 mt-8 border-t border-gray-100 pt-8">
-                        <div class="flex flex-col gap-3">
-                            <div class="w-12 h-12 bg-aura-base rounded-full flex items-center justify-center text-aura-dark">
-                                <i class="ph-fill ph-leaf text-2xl"></i>
-                            </div>
-                            <h4 class="font-bold text-xs uppercase tracking-wide text-aura-dark">Biodegradable</h4>
-                            <p class="text-xs text-gray-500 leading-relaxed">Materials that return to the earth without harm, closing the loop.</p>
-                        </div>
-                        <div class="flex flex-col gap-3">
-                            <div class="w-12 h-12 bg-aura-base rounded-full flex items-center justify-center text-aura-dark">
-                                <i class="ph-fill ph-hands-praying text-2xl"></i>
-                            </div>
-                            <h4 class="font-bold text-xs uppercase tracking-wide text-aura-dark">Fair Wage</h4>
-                            <p class="text-xs text-gray-500 leading-relaxed">Supporting local families with dignity and safe working conditions.</p>
-                        </div>
-                    </div>
-
-                    <a href="#" class="inline-flex items-center gap-2 mt-12 text-aura-dark text-xs font-bold uppercase tracking-widest hover:gap-4 transition-all duration-300 group">
-                        Read Impact Report 
-                        <i class="ph ph-arrow-right group-hover:text-aura-accent"></i>
-                    </a>
-                </div>
-
-                <div class="order-1 md:order-2 relative">
-                    <div class="absolute -top-4 -left-4 w-full h-full border border-aura-accent/30 z-0"></div>
-                    <div class="grid grid-cols-2 gap-4 relative z-10">
-                        <img src="https://images.unsplash.com/photo-1606512398555-4670068565b9?q=80&w=1000" class="w-full h-80 object-cover mt-12 shadow-lg" alt="Fabric detail">
-                        <img src="https://images.unsplash.com/photo-1575954751790-951b1442c55e?q=80&w=1000" class="w-full h-80 object-cover shadow-lg" alt="Woman in field">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section x-show="!session" class="py-24 bg-aura-dark text-white border-t border-white/5 relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-full opacity-[0.03] pointer-events-none" 
-             style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');">
-        </div>
-
-        <div class="container mx-auto px-6 max-w-3xl text-center relative z-10">
-            <i class="ph ph-star-four text-4xl text-aura-accent mb-6 inline-block animate-pulse"></i>
-            <h3 class="text-4xl md:text-5xl font-serif mb-6">Join the Inner Circle</h3>
-            <p class="text-white/60 font-light mb-12 text-lg">
-                Unlock early access to new collections and enjoy <span class="text-white font-bold border-b border-aura-accent">10% off</span> your first order.
-            </p>
-            
-            <div class="bg-white/5 p-8 md:p-12 rounded-lg border border-white/10 backdrop-blur-sm shadow-2xl">
-                
-                <form class="flex flex-col sm:flex-row gap-4 mb-8" 
-                      @submit.prevent="alert('Thank you for subscribing! Check your email for the code.')">
-                    
-                    <div class="flex-1 relative group">
-                        <i class="ph ph-envelope absolute left-4 top-1/2 -translate-y-1/2 text-white/40 group-focus-within:text-aura-accent transition"></i>
-                        <input type="email" 
-                               x-model="newsletterEmail"
-                               placeholder="Enter your email address..." 
-                               required
-                               class="w-full bg-black/30 border border-white/20 pl-12 pr-4 py-4 focus:outline-none focus:border-aura-accent focus:bg-black/50 transition text-white placeholder-white/40 rounded-sm">
-                    </div>
-                    
-                    <button type="submit" 
-                            class="bg-aura-accent text-aura-dark px-10 py-4 font-bold uppercase text-xs tracking-widest hover:bg-white transition whitespace-nowrap rounded-sm shadow-lg hover:shadow-aura-accent/20">
-                        Subscribe
-                    </button>
-                </form>
-                
-                <div class="relative flex py-2 items-center mb-8">
-                    <div class="flex-grow border-t border-white/10"></div>
-                    <span class="flex-shrink-0 mx-4 text-[10px] text-white/40 uppercase tracking-widest">Or proceed with account</span>
-                    <div class="flex-grow border-t border-white/10"></div>
-                </div>
-
-                <button onclick="window.location.href='loginpage.html'"
-                        class="w-full group border border-white/20 px-6 py-4 flex items-center justify-center gap-3 hover:bg-white hover:text-aura-dark transition duration-300 rounded-sm bg-white/5">
-                    <span class="uppercase text-xs font-bold tracking-widest">Login / Sign In</span>
-                    <i class="ph ph-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                </button>
-                
-                <p class="mt-6 text-[10px] text-white/30 italic">
-                    By continuing, you agree to our Terms of Service. No spam, ever.
-                </p>
-            </div>
-        </div>
-    </section>
 
     <footer class="bg-[#0e231f] text-white pt-24 pb-12 border-t border-white/5">
         <div class="container mx-auto px-6">
@@ -431,33 +247,19 @@
                     <p class="text-white/50 text-sm leading-relaxed mb-8">
                         Redefining Indonesian fashion through sustainability and timeless design. Proudly made in Java.
                     </p>
-                    <div class="flex gap-4">
-                        <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-aura-accent hover:text-aura-dark transition border border-white/10"><i class="ph ph-instagram-logo text-lg"></i></a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-aura-accent hover:text-aura-dark transition border border-white/10"><i class="ph ph-facebook-logo text-lg"></i></a>
-                        <a href="#" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-aura-accent hover:text-aura-dark transition border border-white/10"><i class="ph ph-pinterest-logo text-lg"></i></a>
-                    </div>
                 </div>
-
                 <div>
                     <h4 class="uppercase tracking-widest text-xs font-bold mb-8 text-aura-accent border-b border-white/10 pb-2 inline-block">Collections</h4>
                     <ul class="space-y-4 text-sm text-white/60">
                         <li><a href="#" class="hover:text-white transition flex items-center gap-2 group"><i class="ph ph-caret-right text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>New Arrivals</a></li>
-                        <li><a href="#" class="hover:text-white transition flex items-center gap-2 group"><i class="ph ph-caret-right text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>Best Sellers</a></li>
-                        <li><a href="#" class="hover:text-white transition flex items-center gap-2 group"><i class="ph ph-caret-right text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>The Linen Edit</a></li>
-                        <li><a href="#" class="hover:text-white transition flex items-center gap-2 group"><i class="ph ph-caret-right text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>Gift Cards</a></li>
                     </ul>
                 </div>
-
                 <div>
                     <h4 class="uppercase tracking-widest text-xs font-bold mb-8 text-aura-accent border-b border-white/10 pb-2 inline-block">Help & Info</h4>
                     <ul class="space-y-4 text-sm text-white/60">
-                        <li><a href="#" class="hover:text-white transition flex items-center gap-2 group"><i class="ph ph-caret-right text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>Shipping & Returns</a></li>
-                        <li><a href="#" class="hover:text-white transition flex items-center gap-2 group"><i class="ph ph-caret-right text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>Size Guide</a></li>
-                        <li><a href="#" class="hover:text-white transition flex items-center gap-2 group"><i class="ph ph-caret-right text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>Sustainability FAQ</a></li>
                         <li><a href="#" class="hover:text-white transition flex items-center gap-2 group"><i class="ph ph-caret-right text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>Contact Us</a></li>
                     </ul>
                 </div>
-
                 <div>
                     <h4 class="uppercase tracking-widest text-xs font-bold mb-8 text-aura-accent border-b border-white/10 pb-2 inline-block">Studio</h4>
                     <ul class="space-y-6 text-sm text-white/60">
@@ -465,24 +267,11 @@
                             <i class="ph ph-map-pin text-xl text-aura-accent mt-0.5"></i>
                             <span>Jl. Senopati No. 45,<br>Jakarta Selatan 12190</span>
                         </li>
-                        <li class="flex items-center gap-4">
-                            <i class="ph ph-envelope text-xl text-aura-accent"></i>
-                            <span class="border-b border-transparent hover:border-white/60 transition cursor-pointer">hello@auraapparel.id</span>
-                        </li>
-                        <li class="flex items-center gap-4">
-                            <i class="ph ph-whatsapp-logo text-xl text-aura-accent"></i>
-                            <span>+62 812 3456 7890</span>
-                        </li>
                     </ul>
                 </div>
             </div>
-
             <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] text-white/30 uppercase tracking-widest">
-                <p>&copy; 2026 Aura Apparel Indonesia. All rights reserved.</p>
-                <div class="flex gap-8 mt-4 md:mt-0">
-                    <a href="#" class="hover:text-white transition">Privacy Policy</a>
-                    <a href="#" class="hover:text-white transition">Terms of Service</a>
-                </div>
+                <p>&copy; 2026 Aura Apparel Indonesia.</p>
             </div>
         </div>
     </footer>
@@ -507,19 +296,17 @@
                          x-transition:enter-end="translate-x-0"
                          x-transition:leave="translate-x-0"
                          x-transition:leave-end="translate-x-full">
-                        
                         <div class="flex h-full flex-col bg-white shadow-2xl">
                             <div class="flex items-start justify-between px-4 py-6 sm:px-6 border-b border-gray-100 bg-aura-base">
-                                <h2 class="text-xl font-serif text-aura-dark font-bold" id="slide-over-title">Shopping Bag</h2>
+                                <h2 class="text-xl font-serif text-aura-dark font-bold">Shopping Bag</h2>
                                 <button type="button" class="text-gray-400 hover:text-aura-error transition p-2" @click="cartOpen = false">
-                                    <span class="sr-only">Close panel</span>
-                                    <i class="ph ph-x text-2xl"></i>
+                                    <span class="sr-only">Close panel</span><i class="ph ph-x text-2xl"></i>
                                 </button>
                             </div>
 
                             <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6 relative">
                                 <div x-show="cartLoading" class="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex items-center justify-center">
-                                    <div class="spinner border-aura-dark"></div>
+                                    <div class="spinner border-aura-dark" style="border-left-color: #15302a;"></div>
                                 </div>
 
                                 <div class="flow-root">
@@ -531,7 +318,6 @@
                                                 <button @click="cartOpen = false" class="mt-4 text-xs font-bold uppercase tracking-widest text-aura-accent hover:text-aura-dark underline">Start Shopping</button>
                                             </div>
                                         </template>
-                                        
                                         <template x-for="(item, index) in cart" :key="index">
                                             <li class="flex py-6">
                                                 <div class="h-24 w-20 flex-shrink-0 overflow-hidden border border-gray-200 rounded-sm">
@@ -543,7 +329,6 @@
                                                             <h3 x-text="item.name" class="font-serif pr-4"></h3>
                                                             <p class="whitespace-nowrap" x-text="formatMoney(item.price)"></p>
                                                         </div>
-                                                        <p class="mt-1 text-[10px] text-gray-500 uppercase tracking-wider" x-text="item.category"></p>
                                                         <p class="mt-1 text-xs text-aura-dark font-bold">Size: <span x-text="item.size" class="text-aura-accent"></span></p>
                                                     </div>
                                                     <div class="flex flex-1 items-end justify-between text-sm">
@@ -556,22 +341,13 @@
                                     </ul>
                                 </div>
                             </div>
-
                             <div class="border-t border-gray-100 px-4 py-6 sm:px-6 bg-aura-base/30">
                                 <div class="flex justify-between text-base font-medium text-aura-dark mb-4">
                                     <p class="font-serif font-bold">Subtotal</p>
                                     <p class="font-bold" x-text="formatMoney(cartTotal)"></p>
                                 </div>
-                                <p class="mt-0.5 text-[10px] text-gray-500 mb-6 uppercase tracking-wider">Shipping and taxes calculated at checkout.</p>
                                 <div class="mt-6">
-                                    <a href="#" class="flex items-center justify-center rounded-sm border border-transparent bg-aura-dark px-6 py-4 text-base font-medium text-white shadow-sm hover:bg-aura-accent hover:text-aura-dark transition uppercase tracking-widest text-xs font-bold duration-300">
-                                        Checkout
-                                    </a>
-                                </div>
-                                <div class="mt-6 flex justify-center text-center text-xs text-gray-500">
-                                    <button type="button" class="font-medium hover:text-aura-dark transition" @click="cartOpen = false">
-                                        Or <span class="text-aura-accent font-bold">Continue Shopping</span>
-                                    </button>
+                                    <a href="#" class="flex items-center justify-center rounded-sm border border-transparent bg-aura-dark px-6 py-4 text-base font-medium text-white shadow-sm hover:bg-aura-accent hover:text-aura-dark transition uppercase tracking-widest text-xs font-bold duration-300">Checkout</a>
                                 </div>
                             </div>
                         </div>
@@ -582,142 +358,124 @@
     </div>
 
     <div x-show="mobileMenuOpen" class="fixed inset-0 z-50 flex lg:hidden" x-cloak>
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="mobileMenuOpen = false" x-transition.opacity></div>
-        <div class="relative bg-aura-base w-4/5 max-w-sm h-full shadow-2xl p-8 flex flex-col" 
-             x-transition:enter="transition transform duration-300"
-             x-transition:enter-start="-translate-x-full"
-             x-transition:enter-end="translate-x-0"
-             x-transition:leave="transition transform duration-300"
-             x-transition:leave-start="translate-x-0"
-             x-transition:leave-end="-translate-x-full">
-            
-            <div class="flex justify-between items-center mb-12">
-                <span class="text-2xl font-serif font-bold text-aura-dark">AURA.</span>
-                <button @click="mobileMenuOpen = false" class="p-2 -mr-2"><i class="ph ph-x text-2xl text-aura-dark"></i></button>
-            </div>
-
-            <nav class="flex flex-col space-y-6 text-xl font-serif text-aura-dark">
-                <a href="#shop" @click="mobileMenuOpen = false" class="border-b border-aura-dark/10 pb-4 flex justify-between items-center group">
-                    Shop Collection <i class="ph ph-arrow-right opacity-0 group-hover:opacity-100 transition-opacity text-aura-accent"></i>
-                </a>
-                <a href="#about" @click="mobileMenuOpen = false" class="border-b border-aura-dark/10 pb-4 flex justify-between items-center group">
-                    Sustainability <i class="ph ph-arrow-right opacity-0 group-hover:opacity-100 transition-opacity text-aura-accent"></i>
-                </a>
-                <a href="#" class="border-b border-aura-dark/10 pb-4 flex justify-between items-center group">
-                    Journal <i class="ph ph-arrow-right opacity-0 group-hover:opacity-100 transition-opacity text-aura-accent"></i>
-                </a>
-                
-                <div class="pt-8" x-show="!session">
-                    <a href="loginpage.html" class="block w-full text-center bg-aura-dark text-white py-4 text-xs font-bold uppercase tracking-widest rounded-sm mb-4">Login</a>
-                    <a href="#" class="block w-full text-center border border-aura-dark text-aura-dark py-4 text-xs font-bold uppercase tracking-widest rounded-sm">Create Account</a>
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="mobileMenuOpen = false"></div>
+        <div class="relative bg-aura-base w-4/5 max-w-sm h-full shadow-2xl p-8 flex flex-col">
+            <button @click="mobileMenuOpen = false" class="absolute top-8 right-8"><i class="ph ph-x text-2xl text-aura-dark"></i></button>
+            <nav class="flex flex-col space-y-6 text-xl font-serif text-aura-dark mt-12">
+                <a href="#shop" class="border-b border-aura-dark/10 pb-4">Shop</a>
+                <a href="#about" class="border-b border-aura-dark/10 pb-4">Sustainability</a>
+                <a href="catalog.html" class="border-b border-aura-dark/10 pb-4 text-aura-accent">Full Catalog</a>
+                <div x-show="!session">
+                    <a href="loginpage.html" class="block w-full text-center bg-aura-dark text-white py-4 text-xs font-bold uppercase tracking-widest rounded-sm mt-8">Login</a>
                 </div>
-
-                <div class="pt-8" x-show="session">
-                    <p class="text-sm text-gray-500 mb-2">Logged in as:</p>
-                    <p class="font-bold text-sm truncate mb-4" x-text="session?.user?.email"></p>
-                    <button @click="handleLogout(); mobileMenuOpen = false" class="block w-full text-center border border-aura-error text-aura-error py-4 text-xs font-bold uppercase tracking-widest rounded-sm hover:bg-aura-error hover:text-white transition">Sign Out</button>
+                <div x-show="session">
+                    <button @click="handleLogout" class="block w-full text-center border border-aura-error text-aura-error py-4 text-xs font-bold uppercase tracking-widest rounded-sm mt-8">Sign Out</button>
                 </div>
             </nav>
         </div>
     </div>
 
-    <a href="https://wa.me/" target="_blank" class="fixed bottom-6 right-6 z-40 bg-[#25D366] text-white w-14 h-14 rounded-full shadow-2xl hover:scale-110 transition-transform group flex items-center justify-center hover:shadow-[#25d366]/40">
-        <i class="ph-fill ph-whatsapp-logo text-3xl"></i>
-        <span class="absolute right-full mr-4 bg-white text-aura-dark text-xs font-bold px-4 py-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition pointer-events-none whitespace-nowrap origin-right scale-95 group-hover:scale-100">Chat with us</span>
-    </a>
-
     <script>
         function shopApp() {
             return {
-                /* SUPABASE CLIENT CONFIG */
                 supabase: null,
                 session: null,
-
-                /* UI STATES */
-                scrolled: false, 
-                mobileMenuOpen: false, 
+                
+                // UI States
+                scrolled: false,
+                mobileMenuOpen: false,
                 cartOpen: false,
-                searchOpen: false,
                 cartLoading: false,
-                newsletterEmail: '',
+                productsLoading: true, // NEW: Loading state for products
                 
-                /* COMPUTED PROPERTIES */
-                get userInitials() {
-                    if (!this.session || !this.session.user || !this.session.user.email) return 'User';
-                    return this.session.user.email.substring(0, 2).toUpperCase();
-                },
-                
-                /* TOAST SYSTEM */
-                toasts: [],
-                showToast(message, title = 'Notification', type = 'success') {
-                    const id = Date.now();
-                    this.toasts.push({ id, message, title, type, visible: true });
-                    setTimeout(() => {
-                        const index = this.toasts.findIndex(t => t.id === id);
-                        if (index > -1) this.toasts[index].visible = false;
-                        setTimeout(() => this.toasts = this.toasts.filter(t => t.id !== id), 300);
-                    }, 3000);
-                },
-
-                /* PRODUCT DATABASE */
-                // Important: This remains the "Master List" for product details
-                products: [
-                    { id: 1, name: 'Surabaya Utility Vest', price: 1250000, category: 'Outerwear', image: 'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1000', badge: 'Organic Linen', new: true },
-                    { id: 2, name: 'Ubud Flow Dress', price: 899000, category: 'Dresses', image: 'https://images.unsplash.com/photo-1618244972963-dbee1a7edc95?q=80&w=1000', badge: 'Raw Silk', new: true },
-                    { id: 3, name: 'Jakarta Classic Shirt', price: 650000, category: 'Tops', image: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?q=80&w=1000', badge: 'Recycled Cotton', new: false },
-                    { id: 4, name: 'Everyday Tote', price: 450000, category: 'Accessories', image: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=1000', badge: 'Vegan Leather', new: false },
-                    { id: 5, name: 'Seminyak Trousers', price: 950000, category: 'Bottoms', image: 'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?q=80&w=1000', badge: 'Bamboo Fiber', new: false },
-                    { id: 6, name: 'Borneo Kimono', price: 1450000, category: 'Outerwear', image: 'https://images.unsplash.com/photo-1585487000160-6ebcfceb0d03?q=80&w=1000', badge: 'Hand-Woven', new: false },
-                    { id: 7, name: 'Basic Organic Tee', price: 350000, category: 'Tops', image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1000', badge: 'Cotton', new: false },
-                    { id: 8, name: 'Weekend Bucket Hat', price: 250000, category: 'Accessories', image: 'https://images.unsplash.com/photo-1575428652377-a2d80e2277fc?q=80&w=1000', badge: 'Recycled', new: false }
-                ],
-
-                /* HYBRID CART SYSTEM */
+                // Data
+                products: [], // NEW: Empty by default
                 cart: [],
+                toasts: [],
 
-                get cartTotal() {
-                    return this.cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-                },
-                get cartCount() {
-                    return this.cart.reduce((total, item) => total + item.quantity, 0);
+                get cartTotal() { return this.cart.reduce((total, item) => total + (item.price * item.quantity), 0); },
+                get cartCount() { return this.cart.reduce((total, item) => total + item.quantity, 0); },
+                get userInitials() { return this.session?.user?.email ? this.session.user.email.substring(0, 2).toUpperCase() : 'U'; },
+
+                init() {
+                    window.addEventListener('scroll', () => { this.scrolled = window.scrollY > 20; });
+                    this.initSupabase();
                 },
 
-                // 1. ADD TO CART
+                async initSupabase() {
+                    const sbUrl = 'https://xenosyklkpisszqwibdw.supabase.co';
+                    const sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhlbm9zeWtsa3Bpc3N6cXdpYmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4NTkxNzcsImV4cCI6MjA4NjQzNTE3N30.A_WVC9GRa7USe2DPbzVUWw3TuBHnyImVqBZnzuPJbMw';
+                    
+                    if (typeof supabase !== 'undefined') {
+                        this.supabase = supabase.createClient(sbUrl, sbKey);
+                        
+                        // 1. Fetch Products FIRST
+                        await this.fetchProducts();
+
+                        // 2. Check Auth
+                        const { data: { session } } = await this.supabase.auth.getSession();
+                        this.handleSessionChange(session);
+                        this.supabase.auth.onAuthStateChange((_event, session) => this.handleSessionChange(session));
+                    }
+                },
+
+                // NEW: Fetch Products from Supabase DB
+                async fetchProducts() {
+                    this.productsLoading = true;
+                    try {
+                        const { data, error } = await this.supabase
+                            .from('products')
+                            .select('*')
+                            .order('created_at', { ascending: false })
+                            .limit(8); // Only show top 8 on homepage
+                        
+                        if (error) throw error;
+                        this.products = data;
+                    } catch (e) {
+                        console.error('Error loading products:', e);
+                        this.showToast('Failed to load products', 'Error', 'error');
+                    } finally {
+                        this.productsLoading = false;
+                    }
+                },
+
+                async handleSessionChange(session) {
+                    this.session = session;
+                    if (session) {
+                        await this.syncGuestCartToCloud();
+                        await this.fetchCloudCart();
+                    } else {
+                        this.loadLocalCart();
+                    }
+                },
+
+                /* CART LOGIC (Re-used) */
                 async addToCart(product, size) {
                     this.cartOpen = true; 
-                    
-                    if (!this.session) {
-                        // GUEST MODE: Use LocalStorage
-                        this.addToLocalCart(product, size);
-                    } else {
-                        // AUTH MODE: Use Supabase
-                        await this.addToCloudCart(product, size);
-                    }
+                    if (!this.session) this.addToLocalCart(product, size);
+                    else await this.addToCloudCart(product, size);
                 },
 
                 addToLocalCart(product, size) {
                     const existingItem = this.cart.find(i => i.id === product.id && i.size === size);
-                    if (existingItem) {
-                        existingItem.quantity++;
-                    } else {
-                        // Create deep copy
+                    if (existingItem) existingItem.quantity++;
+                    else {
                         const item = JSON.parse(JSON.stringify(product));
                         item.size = size;
                         item.quantity = 1;
                         this.cart.push(item);
                     }
                     this.saveLocalCart();
-                    this.showToast(`${product.name} added (Guest).`);
+                    this.showToast(`${product.name} added.`);
                 },
 
                 async addToCloudCart(product, size) {
                     this.cartLoading = true;
                     try {
-                        // Check if item exists in UI to optimize
+                        // Check local UI state first to get current qty
                         const existingItem = this.cart.find(i => i.id === product.id && i.size === size);
                         const newQty = existingItem ? existingItem.quantity + 1 : 1;
 
-                        // Upsert to DB (Insert or Update if exists)
                         const { error } = await this.supabase
                             .from('cart_items')
                             .upsert({ 
@@ -728,20 +486,15 @@
                             }, { onConflict: 'user_id, product_id, size' });
 
                         if (error) throw error;
-                        
-                        // Refresh cart from DB to be sure
                         await this.fetchCloudCart();
-                        this.showToast(`${product.name} saved to account.`);
-                        
+                        this.showToast(`${product.name} saved.`);
                     } catch (e) {
                         console.error('Cart Error:', e);
-                        this.showToast('Could not save to cloud.', 'Network Error', 'error');
                     } finally {
                         this.cartLoading = false;
                     }
                 },
 
-                // 2. REMOVE FROM CART
                 async removeFromCart(index, item) {
                     if (!this.session) {
                         this.cart.splice(index, 1);
@@ -749,143 +502,51 @@
                     } else {
                         this.cartLoading = true;
                         try {
-                            const { error } = await this.supabase
-                                .from('cart_items')
-                                .delete()
-                                .match({ 
-                                    user_id: this.session.user.id,
-                                    product_id: item.id,
-                                    size: item.size 
-                                }); // Note: item.id is product_id in UI object
-                                
+                            const { error } = await this.supabase.from('cart_items').delete().match({ user_id: this.session.user.id, product_id: item.id, size: item.size });
                             if (error) throw error;
-                            
-                            // Optimistic removal from UI
                             this.cart.splice(index, 1);
-                            
-                        } catch (e) {
-                            console.error('Delete Error:', e);
-                            this.showToast('Could not remove item.', 'Error', 'error');
-                        } finally {
-                            this.cartLoading = false;
-                        }
+                        } catch (e) { console.error('Delete Error:', e); } finally { this.cartLoading = false; }
                     }
-                },
-
-                // 3. CART UTILITIES
-                saveLocalCart() {
-                    localStorage.setItem('aura_cart_guest', JSON.stringify(this.cart));
-                },
-                
-                loadLocalCart() {
-                    const stored = localStorage.getItem('aura_cart_guest');
-                    if (stored) this.cart = JSON.parse(stored);
                 },
 
                 async fetchCloudCart() {
                     this.cartLoading = true;
                     try {
-                        // Fetch raw rows from DB
-                        const { data, error } = await this.supabase
-                            .from('cart_items')
-                            .select('*');
-                        
+                        const { data, error } = await this.supabase.from('cart_items').select('*');
                         if (error) throw error;
-
-                        // HYDRATION: Merge DB rows with JS Product Details
+                        // HYDRATION: Map DB rows to Product Details from 'this.products'
                         this.cart = data.map(row => {
                             const productInfo = this.products.find(p => p.id === row.product_id);
-                            if (!productInfo) return null; // Handle deleted products
-                            
-                            return {
-                                ...productInfo, // Name, Price, Image
-                                size: row.size,
-                                quantity: row.quantity
-                                // We don't need row.id
-                            };
-                        }).filter(Boolean); // Remove nulls
-
-                    } catch (e) {
-                        console.error('Fetch Error:', e);
-                    } finally {
-                        this.cartLoading = false;
-                    }
+                            // If product is not in 'top 8', we might need to fetch it individually? 
+                            // For V1, we assume homepage only shows cart items if they exist in loaded products. 
+                            // NOTE: In a full app, we would do a 'join' query here. 
+                            if (!productInfo) return null; 
+                            return { ...productInfo, size: row.size, quantity: row.quantity };
+                        }).filter(Boolean);
+                    } catch (e) { console.error('Fetch Error:', e); } finally { this.cartLoading = false; }
                 },
 
+                saveLocalCart() { localStorage.setItem('aura_cart_guest', JSON.stringify(this.cart)); },
+                loadLocalCart() { const stored = localStorage.getItem('aura_cart_guest'); if (stored) this.cart = JSON.parse(stored); },
                 async syncGuestCartToCloud() {
-                    // This runs once when user logs in
                     const guestCart = JSON.parse(localStorage.getItem('aura_cart_guest') || '[]');
-                    
                     if (guestCart.length > 0) {
-                        this.showToast('Syncing your cart...', 'Please wait');
-                        
-                        for (const item of guestCart) {
-                            // Upload each local item to DB
-                            await this.addToCloudCart(item, item.size); // Re-use logic (handles qty merge)
-                        }
-                        
-                        // Clear local cart after successful sync
+                        for (const item of guestCart) await this.addToCloudCart(item, item.size);
                         localStorage.removeItem('aura_cart_guest');
                     }
                 },
-
-                formatMoney(amount) {
-                    return new Intl.NumberFormat('id-ID', { 
-                        style: 'currency', 
-                        currency: 'IDR', 
-                        maximumSignificantDigits: 9 
-                    }).format(amount);
+                
+                showToast(message, title = 'Notification', type = 'success') {
+                    const id = Date.now();
+                    this.toasts.push({ id, message, title, type, visible: true });
+                    setTimeout(() => {
+                        const index = this.toasts.findIndex(t => t.id === id);
+                        if (index > -1) this.toasts[index].visible = false;
+                        setTimeout(() => this.toasts = this.toasts.filter(t => t.id !== id), 300);
+                    }, 3000);
                 },
-
-                /* AUTH INITIALIZATION */
-                async initAuth() {
-                    const sbUrl = 'https://xenosyklkpisszqwibdw.supabase.co';
-                    const sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhlbm9zeWtsa3Bpc3N6cXdpYmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4NTkxNzcsImV4cCI6MjA4NjQzNTE3N30.A_WVC9GRa7USe2DPbzVUWw3TuBHnyImVqBZnzuPJbMw';
-                    
-                    if (typeof supabase !== 'undefined') {
-                        this.supabase = supabase.createClient(sbUrl, sbKey);
-                        
-                        // Check initial session
-                        const { data: { session } } = await this.supabase.auth.getSession();
-                        this.handleSessionChange(session);
-
-                        // Listen for auth changes
-                        this.supabase.auth.onAuthStateChange((_event, session) => {
-                            this.handleSessionChange(session);
-                        });
-                    }
-                },
-
-                async handleSessionChange(session) {
-                    this.session = session;
-                    
-                    if (session) {
-                        // Logged In: Sync local items -> Cloud, then Fetch Cloud
-                        await this.syncGuestCartToCloud();
-                        await this.fetchCloudCart();
-                    } else {
-                        // Logged Out: Load Guest Cart
-                        this.loadLocalCart();
-                    }
-                },
-
-                async handleLogout() {
-                    if (this.supabase) {
-                        await this.supabase.auth.signOut();
-                        this.cart = []; // Clear UI immediately
-                        this.showToast('You have been signed out.', 'Goodbye!', 'success');
-                        // handleSessionChange will trigger automatically to load guest cart
-                    }
-                },
-
-                /* MAIN INIT */
-                init() {
-                    window.addEventListener('scroll', () => {
-                        this.scrolled = window.scrollY > 20;
-                    });
-
-                    this.initAuth();
-                }
+                async handleLogout() { if (this.supabase) { await this.supabase.auth.signOut(); this.cart = []; } },
+                formatMoney(amount) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumSignificantDigits: 9 }).format(amount); }
             }
         }
     </script>
