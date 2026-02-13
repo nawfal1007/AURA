@@ -6,11 +6,8 @@
     <title>Secure Checkout | AURA APPAREL</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
-    
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
@@ -34,136 +31,227 @@
             }
         }
     </script>
-    <style>[x-cloak] { display: none !important; }</style>
+    <style>
+        [x-cloak] { display: none !important; }
+        /* Disable scroll when processing */
+        .processing-active { overflow: hidden; }
+        
+        /* Custom Input Styling */
+        .input-field {
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 12px 16px;
+            font-size: 14px;
+            transition: all 0.3s;
+            outline: none;
+        }
+        .input-field:focus {
+            border-color: #15302a;
+            box-shadow: 0 0 0 1px #15302a;
+        }
+        .input-field.error {
+            border-color: #9B2C2C;
+            background-color: #FFF5F5;
+        }
+    </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans" x-data="checkoutApp()">
 
     <template x-if="!session && !loading">
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-aura-dark/90 backdrop-blur-sm" x-cloak>
-            <div class="bg-white p-8 rounded-lg shadow-2xl max-w-md w-full text-center">
-                <i class="ph ph-lock-key text-4xl text-aura-accent mb-4"></i>
-                <h2 class="text-2xl font-bold mb-2">Checkout Account Required</h2>
-                <p class="text-gray-500 mb-6">Please log in to complete your purchase.</p>
-                <div class="flex gap-4 justify-center">
-                    <a href="loginpage.html" class="bg-aura-dark text-white px-6 py-3 rounded uppercase text-xs font-bold tracking-widest hover:bg-aura-accent transition">Log In</a>
-                    <a href="index.html" class="text-xs uppercase font-bold text-gray-400 hover:text-gray-600 self-center">Return Home</a>
-                </div>
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-aura-dark/95 backdrop-blur-sm" x-cloak>
+            <div class="bg-white p-8 rounded shadow-2xl max-w-sm w-full text-center">
+                <i class="ph-fill ph-lock-key text-4xl text-aura-accent mb-4"></i>
+                <h2 class="text-xl font-bold mb-2 text-aura-dark">Account Required</h2>
+                <p class="text-sm text-gray-500 mb-6">To ensure secure order tracking, please log in.</p>
+                <a href="loginpage.html" class="block w-full bg-aura-dark text-white py-3 rounded text-xs font-bold uppercase tracking-widest hover:bg-aura-accent transition">
+                    Log In / Register
+                </a>
+                <a href="index.html" class="block mt-4 text-xs text-gray-400 font-bold uppercase tracking-widest hover:text-aura-dark">Cancel</a>
             </div>
         </div>
     </template>
 
     <div class="min-h-screen flex flex-col md:flex-row">
         
-        <div class="w-full md:w-2/3 p-8 md:p-12 lg:p-16 bg-white overflow-y-auto">
-            <header class="flex justify-between items-center mb-10 border-b border-gray-100 pb-6">
-                <a href="index.html" class="text-2xl font-serif font-bold tracking-widest text-aura-dark">AURA.</a>
-                <a href="index.html" class="text-xs font-bold text-gray-400 hover:text-aura-dark flex items-center gap-2">
-                    <i class="ph ph-arrow-left"></i> Return to Cart
+        <div class="w-full md:w-2/3 p-8 md:p-12 lg:p-20 bg-white overflow-y-auto relative">
+            
+            <header class="flex justify-between items-center mb-12 border-b border-gray-100 pb-6">
+                <div class="flex items-center gap-3">
+                    <a href="index.html" class="text-2xl font-serif font-bold tracking-widest text-aura-dark">AURA.</a>
+                    <span class="text-gray-300 text-sm">|</span>
+                    <span class="text-xs font-bold uppercase text-gray-400 tracking-widest flex items-center gap-1">
+                        <i class="ph-fill ph-lock-key text-aura-success"></i> Secure Checkout
+                    </span>
+                </div>
+                <a href="index.html" class="text-xs font-bold text-gray-400 hover:text-aura-dark flex items-center gap-1 group transition">
+                    <i class="ph ph-caret-left group-hover:-translate-x-1 transition"></i> Return to Shop
                 </a>
             </header>
 
-            <h1 class="text-3xl font-serif text-aura-dark mb-8">Shipping Information</h1>
+            <h1 class="text-3xl font-serif text-aura-dark mb-2">Shipping Details</h1>
+            <p class="text-sm text-gray-500 mb-8">Please enter your details carefully for delivery.</p>
 
-            <form @submit.prevent="placeOrder" class="space-y-6 max-w-lg">
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-500 mb-2">Contact Info</label>
+            <form @submit.prevent="validateAndPlaceOrder" class="space-y-6 max-w-lg">
+                
+                <div class="space-y-4">
+                    <p class="text-xs font-bold uppercase text-aura-accent tracking-widest border-b border-gray-100 pb-2">Contact Information</p>
+                    
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="text" x-model="form.name" required placeholder="Full Name" class="w-full border border-gray-300 rounded p-3 text-sm focus:border-aura-dark outline-none transition focus:ring-1 focus:ring-aura-dark">
-                        <input type="tel" x-model="form.whatsapp" required placeholder="WhatsApp Number (e.g. 0812...)" class="w-full border border-gray-300 rounded p-3 text-sm focus:border-aura-dark outline-none transition focus:ring-1 focus:ring-aura-dark">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-500 mb-2">Delivery Address</label>
-                    <input type="text" x-model="form.address" required placeholder="Street Name, House No." class="w-full border border-gray-300 rounded p-3 text-sm focus:border-aura-dark outline-none mb-4 transition focus:ring-1 focus:ring-aura-dark">
-                    <div class="grid grid-cols-2 gap-4">
-                        <input type="text" x-model="form.city" required placeholder="City / District" class="w-full border border-gray-300 rounded p-3 text-sm focus:border-aura-dark outline-none transition focus:ring-1 focus:ring-aura-dark">
-                        <input type="text" x-model="form.zip" placeholder="Zip Code" class="w-full border border-gray-300 rounded p-3 text-sm focus:border-aura-dark outline-none transition focus:ring-1 focus:ring-aura-dark">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold uppercase text-gray-500 mb-2">Payment Method</label>
-                    <div class="border border-gray-300 rounded p-4 flex items-center gap-4 bg-gray-50">
-                        <i class="ph ph-bank text-2xl text-aura-dark"></i>
                         <div>
-                            <p class="font-bold text-sm text-aura-dark">Manual Bank Transfer (BCA/Mandiri)</p>
-                            <p class="text-xs text-gray-500">Details shown after order is placed.</p>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Full Name *</label>
+                            <input type="text" x-model="form.name" required class="input-field" placeholder="e.g. Budi Santoso">
                         </div>
-                        <i class="ph-fill ph-check-circle text-aura-success text-xl ml-auto"></i>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">WhatsApp Number *</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">+62</span>
+                                <input type="tel" x-model="form.whatsapp" required class="input-field pl-12" placeholder="81234567890" minlength="9" maxlength="15">
+                            </div>
+                            <p class="text-[10px] text-gray-400 mt-1">Used for payment confirmation.</p>
+                        </div>
                     </div>
                 </div>
 
-                <button type="submit" :disabled="processing || cart.length === 0" class="w-full bg-aura-dark text-white py-4 rounded text-sm font-bold uppercase tracking-widest hover:bg-aura-accent transition shadow-lg mt-8 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center gap-2">
-                    <span x-show="processing" class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                    <span x-text="processing ? 'Processing Order...' : 'Confirm Order'"></span>
+                <div class="space-y-4 pt-4">
+                    <p class="text-xs font-bold uppercase text-aura-accent tracking-widest border-b border-gray-100 pb-2">Delivery Address</p>
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Street Address *</label>
+                        <input type="text" x-model="form.address" required class="input-field" placeholder="Jalan Sudirman No. 45" minlength="10">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">City / District *</label>
+                            <input type="text" x-model="form.city" required class="input-field" placeholder="Jakarta Selatan">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1">Zip Code</label>
+                            <input type="text" x-model="form.zip" class="input-field" placeholder="12190">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6">
+                    <div class="border border-aura-dark/20 bg-aura-base/30 rounded p-4 flex items-center justify-between cursor-not-allowed opacity-90">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-white rounded flex items-center justify-center border border-gray-200">
+                                <i class="ph ph-bank text-xl text-aura-dark"></i>
+                            </div>
+                            <div>
+                                <p class="font-bold text-sm text-aura-dark">Bank Transfer</p>
+                                <p class="text-xs text-gray-500">BCA / Mandiri</p>
+                            </div>
+                        </div>
+                        <i class="ph-fill ph-check-circle text-aura-success text-xl"></i>
+                    </div>
+                    <p class="text-[10px] text-gray-400 mt-2 text-center">Payment instructions will be shown after order placement.</p>
+                </div>
+
+                <button type="submit" 
+                        :disabled="processing || cart.length === 0" 
+                        class="w-full bg-aura-dark text-white py-4 rounded shadow-lg hover:bg-aura-accent hover:shadow-xl transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 mt-8 group">
+                    <span x-show="!processing" class="text-sm font-bold uppercase tracking-widest">Complete Order</span>
+                    <i x-show="!processing" class="ph-bold ph-arrow-right group-hover:translate-x-1 transition"></i>
+                    
+                    <span x-show="processing" class="flex items-center gap-2">
+                        <span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                        <span class="text-xs font-bold uppercase tracking-widest">Processing Securely...</span>
+                    </span>
                 </button>
-                <p class="text-[10px] text-center text-gray-400 mt-4">By clicking confirm, you agree to our Terms of Service.</p>
+                
+                <p class="text-[10px] text-center text-gray-400 mt-4">
+                    By placing this order, you agree to our Terms of Service and Privacy Policy.
+                </p>
             </form>
         </div>
 
-        <div class="w-full md:w-1/3 bg-aura-base p-8 md:p-12 lg:p-16 border-l border-gray-200">
-            <h2 class="font-bold text-gray-400 uppercase text-xs tracking-widest mb-6">Order Summary</h2>
-            
-            <div x-show="loading" class="text-center py-10">
-                <div class="w-6 h-6 border-2 border-aura-dark border-t-transparent rounded-full animate-spin mx-auto"></div>
-            </div>
+        <div class="w-full md:w-1/3 bg-aura-base border-l border-gray-200 flex flex-col">
+            <div class="p-8 md:p-12 lg:p-16 flex-1 overflow-y-auto">
+                <h2 class="font-bold text-gray-400 uppercase text-xs tracking-widest mb-8 pb-2 border-b border-gray-200">Order Summary</h2>
+                
+                <div x-show="loading" class="py-10 text-center">
+                    <div class="w-8 h-8 border-2 border-aura-dark border-t-transparent rounded-full animate-spin mx-auto"></div>
+                </div>
 
-            <div x-show="!loading" x-cloak>
-                <ul class="space-y-6 mb-8 max-h-[400px] overflow-y-auto pr-2">
-                    <template x-for="item in cart" :key="item.id + item.size">
-                        <li class="flex gap-4">
-                            <div class="w-16 h-20 bg-gray-200 rounded overflow-hidden flex-shrink-0 border border-gray-300">
-                                <img :src="item.image" class="w-full h-full object-cover">
-                            </div>
-                            <div class="flex-1">
-                                <h4 class="font-serif text-aura-dark font-bold text-sm" x-text="item.name"></h4>
-                                <p class="text-xs text-gray-500">Size: <span x-text="item.size"></span></p>
-                                <p class="text-xs text-gray-500">Qty: <span x-text="item.quantity"></span></p>
-                            </div>
-                            <p class="font-bold text-sm text-aura-dark" x-text="formatMoney(item.price * item.quantity)"></p>
-                        </li>
-                    </template>
-                </ul>
+                <div x-show="!loading" x-cloak>
+                    <ul class="space-y-6 mb-8">
+                        <template x-for="item in cart" :key="item.id + item.size">
+                            <li class="flex gap-4 group">
+                                <div class="w-16 h-20 bg-gray-200 rounded overflow-hidden flex-shrink-0 border border-gray-300 relative">
+                                    <img :src="item.image" class="w-full h-full object-cover">
+                                    <span class="absolute top-0 right-0 bg-aura-dark text-white text-[9px] font-bold w-5 h-5 flex items-center justify-center rounded-bl" x-text="item.quantity"></span>
+                                </div>
+                                <div class="flex-1">
+                                    <h4 class="font-serif text-aura-dark font-bold text-sm leading-tight" x-text="item.name"></h4>
+                                    <p class="text-xs text-gray-500 mt-1">Size: <span x-text="item.size" class="font-bold text-gray-700"></span></p>
+                                </div>
+                                <p class="font-bold text-sm text-aura-dark font-mono" x-text="formatMoney(item.price * item.quantity)"></p>
+                            </li>
+                        </template>
+                    </ul>
 
-                <div class="border-t border-gray-200 pt-6 space-y-2">
-                    <div class="flex justify-between text-sm text-gray-500">
-                        <span>Subtotal</span>
-                        <span x-text="formatMoney(cartTotal)"></span>
-                    </div>
-                    <div class="flex justify-between text-sm text-gray-500">
-                        <span>Shipping (Java)</span>
-                        <span class="text-aura-success font-bold">Free</span>
-                    </div>
-                    <div class="flex justify-between text-lg font-bold text-aura-dark pt-4 border-t border-gray-200 mt-4">
-                        <span>Total</span>
-                        <span x-text="formatMoney(cartTotal)"></span>
+                    <div class="border-t border-gray-200 pt-6 space-y-3">
+                        <div class="flex justify-between text-sm text-gray-500">
+                            <span>Subtotal</span>
+                            <span x-text="formatMoney(cartTotal)"></span>
+                        </div>
+                        <div class="flex justify-between text-sm text-gray-500">
+                            <span>Shipping (Java)</span>
+                            <span class="text-aura-success font-bold text-xs uppercase bg-green-100 px-2 py-0.5 rounded">Free</span>
+                        </div>
+                        <div class="flex justify-between text-xl font-bold text-aura-dark pt-4 border-t border-gray-200 mt-4">
+                            <span>Total</span>
+                            <span x-text="formatMoney(cartTotal)"></span>
+                        </div>
+                        <p class="text-[10px] text-gray-400 text-right mt-1">Includes all taxes.</p>
                     </div>
                 </div>
+            </div>
+            
+            <div class="p-8 bg-white border-t border-gray-100 text-center">
+                <p class="text-[10px] font-bold uppercase text-gray-400 mb-2 flex items-center justify-center gap-1">
+                    <i class="ph-fill ph-shield-check text-green-500"></i> SSL Secure Transaction
+                </p>
             </div>
         </div>
     </div>
 
     <div x-show="orderSuccess" class="fixed inset-0 z-[60] flex items-center justify-center p-4" x-cloak>
-        <div class="absolute inset-0 bg-aura-dark/95 backdrop-blur-md"></div>
-        <div class="relative bg-white rounded-lg shadow-2xl p-8 max-w-md w-full text-center animate-fade-in-up">
-            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600">
+        <div class="absolute inset-0 bg-aura-dark/95 backdrop-blur-md transition-opacity"></div>
+        
+        <div class="relative bg-white rounded-lg shadow-2xl p-8 max-w-md w-full text-center border-t-4 border-aura-success animate-fade-in-up">
+            <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600 shadow-sm border border-green-100">
                 <i class="ph-fill ph-check text-3xl"></i>
             </div>
-            <h2 class="text-2xl font-serif font-bold text-aura-dark mb-2">Order Placed!</h2>
-            <p class="text-sm text-gray-500 mb-6">Your Order ID: <span class="font-mono font-bold text-aura-dark" x-text="'#' + lastOrderId"></span></p>
             
-            <div class="bg-aura-base p-4 rounded border border-aura-accent/20 mb-6 text-left">
-                <p class="text-xs font-bold uppercase text-aura-accent mb-2">Payment Required</p>
-                <p class="text-sm font-bold text-aura-dark mb-1">BCA: 123-456-7890</p>
-                <p class="text-xs text-gray-500 mb-2">A/N Aura Apparel Indonesia</p>
-                <p class="text-xs text-gray-500">Amount: <span class="font-bold text-aura-dark" x-text="formatMoney(cartTotal)"></span></p>
+            <h2 class="text-3xl font-serif font-bold text-aura-dark mb-2">Order Confirmed!</h2>
+            <p class="text-sm text-gray-500 mb-6">Thank you, <span x-text="form.name.split(' ')[0]" class="font-bold text-gray-700"></span>. We have received your order.</p>
+            
+            <div class="bg-aura-base p-5 rounded border border-aura-dark/5 mb-6 text-left relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-aura-accent text-white text-[9px] font-bold px-2 py-1 rounded-bl">PENDING PAYMENT</div>
+                
+                <p class="text-[10px] font-bold uppercase text-gray-400 tracking-widest mb-1">Order Reference</p>
+                <p class="text-lg font-mono font-bold text-aura-dark mb-4" x-text="'#' + lastOrderId"></p>
+                
+                <div class="h-px bg-gray-200 w-full mb-4"></div>
+                
+                <p class="text-[10px] font-bold uppercase text-gray-400 tracking-widest mb-2">Transfer Instructions</p>
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-sm font-bold text-gray-700">BCA</span>
+                    <span class="font-mono font-bold text-aura-dark">123-456-7890</span>
+                </div>
+                <p class="text-xs text-gray-500">A/N Aura Apparel Indonesia</p>
             </div>
 
-            <a :href="whatsappLink" target="_blank" class="block w-full bg-green-600 text-white py-3 rounded font-bold uppercase text-xs tracking-widest hover:bg-green-700 transition mb-3 flex items-center justify-center gap-2 shadow-lg">
-                <i class="ph ph-whatsapp-logo text-lg"></i> Confirm on WhatsApp
+            <a :href="whatsappLink" target="_blank" class="block w-full bg-green-600 text-white py-4 rounded font-bold uppercase text-xs tracking-widest hover:bg-green-700 transition mb-3 flex items-center justify-center gap-2 shadow-lg hover:-translate-y-0.5 transform">
+                <i class="ph-fill ph-whatsapp-logo text-xl"></i> Send Confirmation
             </a>
-            <a href="index.html" class="block text-xs text-gray-400 hover:text-aura-dark font-bold uppercase tracking-widest mt-4">Return to Store</a>
+            
+            <a href="index.html" class="block text-xs text-gray-400 hover:text-aura-dark font-bold uppercase tracking-widest mt-6 transition">
+                Return to Homepage
+            </a>
         </div>
     </div>
 
@@ -180,7 +268,7 @@
                 
                 // Data
                 cart: [],
-                products: [], // Need product details for price/image
+                products: [], 
                 
                 // Form Data
                 form: {
@@ -210,24 +298,20 @@
                     if (session) {
                         await this.loadCartData();
                     } else {
-                        // Not logged in? The template guard will handle the UI blocking
                         this.loading = false;
                     }
                 },
 
                 async loadCartData() {
                     try {
-                        // 1. Fetch Products Catalog (for prices/images)
                         const { data: products } = await this.supabase.from('products').select('*');
                         this.products = products;
 
-                        // 2. Fetch Cart Items
                         const { data: cartItems } = await this.supabase
                             .from('cart_items')
                             .select('*')
                             .eq('user_id', this.session.user.id);
 
-                        // 3. Hydrate Cart (Merge DB cart with Product info)
                         this.cart = cartItems.map(item => {
                             const product = this.products.find(p => p.id === item.product_id);
                             if (!product) return null;
@@ -240,10 +324,23 @@
 
                     } catch (error) {
                         console.error('Error loading cart:', error);
-                        alert('Error loading cart. Please refresh.');
                     } finally {
                         this.loading = false;
                     }
+                },
+
+                async validateAndPlaceOrder() {
+                    // Manual strict validation
+                    if (this.form.whatsapp.length < 9) {
+                        alert('Please enter a valid WhatsApp number (min 9 digits).');
+                        return;
+                    }
+                    if (this.form.address.length < 10) {
+                        alert('Please enter a clearer address for delivery.');
+                        return;
+                    }
+                    
+                    this.placeOrder();
                 },
 
                 async placeOrder() {
@@ -251,7 +348,7 @@
                     this.processing = true;
 
                     try {
-                        // 1. Insert Order Header
+                        // 1. Create Order
                         const { data: orderData, error: orderError } = await this.supabase
                             .from('orders')
                             .insert({
@@ -262,7 +359,8 @@
                                 customer_name: this.form.name,
                                 customer_whatsapp: this.form.whatsapp,
                                 shipping_address: this.form.address,
-                                shipping_city: this.form.city
+                                shipping_city: this.form.city,
+                                shipping_zip: this.form.zip // Added ZIP
                             })
                             .select()
                             .single();
@@ -270,7 +368,7 @@
                         if (orderError) throw orderError;
                         this.lastOrderId = orderData.id;
 
-                        // 2. Insert Order Items (Snapshot)
+                        // 2. Create Order Items
                         const orderItemsData = this.cart.map(item => ({
                             order_id: orderData.id,
                             product_id: item.id,
@@ -287,26 +385,24 @@
 
                         if (itemsError) throw itemsError;
 
-                        // 3. Clear Shopping Cart
+                        // 3. Clear Cart
                         await this.supabase
                             .from('cart_items')
                             .delete()
                             .eq('user_id', this.session.user.id);
 
-                        // 4. Generate WhatsApp Link (Replace Phone Number with yours)
-                        const message = `Hello Aura! I just placed Order #${this.lastOrderId}. Name: ${this.form.name}. Total: ${this.formatMoney(this.cartTotal)}. I will send the transfer proof shortly.`;
-                        this.whatsappLink = `https://wa.me/6281234567890?text=${encodeURIComponent(message)}`;
+                        // 4. Create WhatsApp Link (UPDATED NUMBER)
+                        // NUMBER: 6281385058466
+                        const message = `Hello Aura! I placed Order #${this.lastOrderId}. Name: ${this.form.name}. Total: ${this.formatMoney(this.cartTotal)}. I will send the transfer proof shortly.`;
+                        this.whatsappLink = `https://wa.me/6281385058466?text=${encodeURIComponent(message)}`;
 
-                        // 5. Success State
+                        // 5. Success UI
                         this.orderSuccess = true;
-                        // Don't clear local cart array yet so we can show the total in the success modal, 
-                        // but technically the DB is empty.
 
                     } catch (error) {
                         console.error('Checkout error:', error);
                         alert('Checkout failed: ' + error.message);
-                    } finally {
-                        this.processing = false;
+                        this.processing = false; // Only stop processing on error
                     }
                 },
 
