@@ -347,7 +347,9 @@
                                     <p class="font-bold" x-text="formatMoney(cartTotal)"></p>
                                 </div>
                                 <div class="mt-6">
-                                    <a href="#" class="flex items-center justify-center rounded-sm border border-transparent bg-aura-dark px-6 py-4 text-base font-medium text-white shadow-sm hover:bg-aura-accent hover:text-aura-dark transition uppercase tracking-widest text-xs font-bold duration-300">Checkout</a>
+                                    <a href="checkout.html" class="flex items-center justify-center rounded-sm border border-transparent bg-aura-dark px-6 py-4 text-base font-medium text-white shadow-sm hover:bg-aura-accent hover:text-aura-dark transition uppercase tracking-widest text-xs font-bold duration-300">
+                                        Proceed to Checkout
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -386,10 +388,10 @@
                 mobileMenuOpen: false,
                 cartOpen: false,
                 cartLoading: false,
-                productsLoading: true, // NEW: Loading state for products
+                productsLoading: true, 
                 
                 // Data
-                products: [], // NEW: Empty by default
+                products: [], 
                 cart: [],
                 toasts: [],
 
@@ -419,7 +421,7 @@
                     }
                 },
 
-                // NEW: Fetch Products from Supabase DB
+                // Fetch Products from Supabase DB
                 async fetchProducts() {
                     this.productsLoading = true;
                     try {
@@ -427,7 +429,7 @@
                             .from('products')
                             .select('*')
                             .order('created_at', { ascending: false })
-                            .limit(8); // Only show top 8 on homepage
+                            .limit(8); 
                         
                         if (error) throw error;
                         this.products = data;
@@ -449,7 +451,7 @@
                     }
                 },
 
-                /* CART LOGIC (Re-used) */
+                /* CART LOGIC */
                 async addToCart(product, size) {
                     this.cartOpen = true; 
                     if (!this.session) this.addToLocalCart(product, size);
@@ -472,7 +474,6 @@
                 async addToCloudCart(product, size) {
                     this.cartLoading = true;
                     try {
-                        // Check local UI state first to get current qty
                         const existingItem = this.cart.find(i => i.id === product.id && i.size === size);
                         const newQty = existingItem ? existingItem.quantity + 1 : 1;
 
@@ -514,12 +515,9 @@
                     try {
                         const { data, error } = await this.supabase.from('cart_items').select('*');
                         if (error) throw error;
-                        // HYDRATION: Map DB rows to Product Details from 'this.products'
+                        
                         this.cart = data.map(row => {
                             const productInfo = this.products.find(p => p.id === row.product_id);
-                            // If product is not in 'top 8', we might need to fetch it individually? 
-                            // For V1, we assume homepage only shows cart items if they exist in loaded products. 
-                            // NOTE: In a full app, we would do a 'join' query here. 
                             if (!productInfo) return null; 
                             return { ...productInfo, size: row.size, quantity: row.quantity };
                         }).filter(Boolean);
