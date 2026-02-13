@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Checkout | AURA APPAREL</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        aura: {
+                            base: '#F9F7F2',
+                            dark: '#15302a',
+                            accent: '#C5A065',
+                            error: '#9B2C2C',
+                            success: '#2F855A'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>[x-cloak] { display: none !important; }</style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans" x-data="checkoutApp()">
+
+    <template x-if="!session && !loading">
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-aura-dark/90 backdrop-blur-sm" x-cloak>
+            <div class="bg-white p-8 rounded-lg shadow-2xl max-w-md w-full text-center">
+                <i class="ph ph-lock-key text-4xl text-aura-accent mb-4"></i>
+                <h2 class="text-2xl font-bold mb-2">Checkout Account Required</h2>
+                <p class="text-gray-500 mb-6">Please log in to complete your purchase.</p>
+                <div class="flex gap-4 justify-center">
+                    <a href="loginpage.html" class="bg-aura-dark text-white px-6 py-3 rounded uppercase text-xs font-bold tracking-widest hover:bg-aura-accent transition">Log In</a>
+                    <a href="index.html" class="text-xs uppercase font-bold text-gray-400 hover:text-gray-600 self-center">Return Home</a>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <div class="min-h-screen flex flex-col md:flex-row">
+        
+        <div class="w-full md:w-2/3 p-8 md:p-12 lg:p-16 bg-white overflow-y-auto">
+            <header class="flex justify-between items-center mb-10 border-b border-gray-100 pb-6">
+                <a href="index.html" class="text-2xl font-serif font-bold tracking-widest text-aura-dark">AURA.</a>
+                <a href="index.html" class="text-xs font-bold text-gray-400 hover:text-aura-dark flex items-center gap-2">
+                    <i class="ph ph-arrow-left"></i> Return to Cart
+                </a>
+            </header>
+
+            <h1 class="text-3xl font-serif text-aura-dark mb-8">Shipping Information</h1>
+
+            <form @submit.prevent="placeOrder" class="space-y-6 max-w-lg">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-2">Contact Info</label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" x-model="form.name" required placeholder="Full Name" class="w-full border border-gray-300 rounded p-3 text-sm focus:border-aura-dark outline-none transition focus:ring-1 focus:ring-aura-dark">
+                        <input type="tel" x-model="form.whatsapp" required placeholder="WhatsApp Number (e.g. 0812...)" class="w-full border border-gray-300 rounded p-3 text-sm focus:border-aura-dark outline-none transition focus:ring-1 focus:ring-aura-dark">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-2">Delivery Address</label>
+                    <input type="text" x-model="form.address" required placeholder="Street Name, House No." class="w-full border border-gray-300 rounded p-3 text-sm focus:border-aura-dark outline-none mb-4 transition focus:ring-1 focus:ring-aura-dark">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" x-model="form.city" required placeholder="City / District" class="w-full border border-gray-300 rounded p-3 text-sm focus:border-aura-dark outline-none transition focus:ring-1 focus:ring-aura-dark">
+                        <input type="text" x-model="form.zip" placeholder="Zip Code" class="w-full border border-gray-300 rounded p-3 text-sm focus:border-aura-dark outline-none transition focus:ring-1 focus:ring-aura-dark">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 mb-2">Payment Method</label>
+                    <div class="border border-gray-300 rounded p-4 flex items-center gap-4 bg-gray-50">
+                        <i class="ph ph-bank text-2xl text-aura-dark"></i>
+                        <div>
+                            <p class="font-bold text-sm text-aura-dark">Manual Bank Transfer (BCA/Mandiri)</p>
+                            <p class="text-xs text-gray-500">Details shown after order is placed.</p>
+                        </div>
+                        <i class="ph-fill ph-check-circle text-aura-success text-xl ml-auto"></i>
+                    </div>
+                </div>
+
+                <button type="submit" :disabled="processing || cart.length === 0" class="w-full bg-aura-dark text-white py-4 rounded text-sm font-bold uppercase tracking-widest hover:bg-aura-accent transition shadow-lg mt-8 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center gap-2">
+                    <span x-show="processing" class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                    <span x-text="processing ? 'Processing Order...' : 'Confirm Order'"></span>
+                </button>
+                <p class="text-[10px] text-center text-gray-400 mt-4">By clicking confirm, you agree to our Terms of Service.</p>
+            </form>
+        </div>
+
+        <div class="w-full md:w-1/3 bg-aura-base p-8 md:p-12 lg:p-16 border-l border-gray-200">
+            <h2 class="font-bold text-gray-400 uppercase text-xs tracking-widest mb-6">Order Summary</h2>
+            
+            <div x-show="loading" class="text-center py-10">
+                <div class="w-6 h-6 border-2 border-aura-dark border-t-transparent rounded-full animate-spin mx-auto"></div>
+            </div>
+
+            <div x-show="!loading" x-cloak>
+                <ul class="space-y-6 mb-8 max-h-[400px] overflow-y-auto pr-2">
+                    <template x-for="item in cart" :key="item.id + item.size">
+                        <li class="flex gap-4">
+                            <div class="w-16 h-20 bg-gray-200 rounded overflow-hidden flex-shrink-0 border border-gray-300">
+                                <img :src="item.image" class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-serif text-aura-dark font-bold text-sm" x-text="item.name"></h4>
+                                <p class="text-xs text-gray-500">Size: <span x-text="item.size"></span></p>
+                                <p class="text-xs text-gray-500">Qty: <span x-text="item.quantity"></span></p>
+                            </div>
+                            <p class="font-bold text-sm text-aura-dark" x-text="formatMoney(item.price * item.quantity)"></p>
+                        </li>
+                    </template>
+                </ul>
+
+                <div class="border-t border-gray-200 pt-6 space-y-2">
+                    <div class="flex justify-between text-sm text-gray-500">
+                        <span>Subtotal</span>
+                        <span x-text="formatMoney(cartTotal)"></span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-500">
+                        <span>Shipping (Java)</span>
+                        <span class="text-aura-success font-bold">Free</span>
+                    </div>
+                    <div class="flex justify-between text-lg font-bold text-aura-dark pt-4 border-t border-gray-200 mt-4">
+                        <span>Total</span>
+                        <span x-text="formatMoney(cartTotal)"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="orderSuccess" class="fixed inset-0 z-[60] flex items-center justify-center p-4" x-cloak>
+        <div class="absolute inset-0 bg-aura-dark/95 backdrop-blur-md"></div>
+        <div class="relative bg-white rounded-lg shadow-2xl p-8 max-w-md w-full text-center animate-fade-in-up">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600">
+                <i class="ph-fill ph-check text-3xl"></i>
+            </div>
+            <h2 class="text-2xl font-serif font-bold text-aura-dark mb-2">Order Placed!</h2>
+            <p class="text-sm text-gray-500 mb-6">Your Order ID: <span class="font-mono font-bold text-aura-dark" x-text="'#' + lastOrderId"></span></p>
+            
+            <div class="bg-aura-base p-4 rounded border border-aura-accent/20 mb-6 text-left">
+                <p class="text-xs font-bold uppercase text-aura-accent mb-2">Payment Required</p>
+                <p class="text-sm font-bold text-aura-dark mb-1">BCA: 123-456-7890</p>
+                <p class="text-xs text-gray-500 mb-2">A/N Aura Apparel Indonesia</p>
+                <p class="text-xs text-gray-500">Amount: <span class="font-bold text-aura-dark" x-text="formatMoney(cartTotal)"></span></p>
+            </div>
+
+            <a :href="whatsappLink" target="_blank" class="block w-full bg-green-600 text-white py-3 rounded font-bold uppercase text-xs tracking-widest hover:bg-green-700 transition mb-3 flex items-center justify-center gap-2 shadow-lg">
+                <i class="ph ph-whatsapp-logo text-lg"></i> Confirm on WhatsApp
+            </a>
+            <a href="index.html" class="block text-xs text-gray-400 hover:text-aura-dark font-bold uppercase tracking-widest mt-4">Return to Store</a>
+        </div>
+    </div>
+
+    <script>
+        function checkoutApp() {
+            return {
+                supabase: null,
+                session: null,
+                loading: true,
+                processing: false,
+                orderSuccess: false,
+                lastOrderId: null,
+                whatsappLink: '#',
+                
+                // Data
+                cart: [],
+                products: [], // Need product details for price/image
+                
+                // Form Data
+                form: {
+                    name: '',
+                    whatsapp: '',
+                    address: '',
+                    city: '',
+                    zip: ''
+                },
+
+                get cartTotal() { return this.cart.reduce((total, item) => total + (item.price * item.quantity), 0); },
+
+                init() {
+                    const sbUrl = 'https://xenosyklkpisszqwibdw.supabase.co';
+                    const sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhlbm9zeWtsa3Bpc3N6cXdpYmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4NTkxNzcsImV4cCI6MjA4NjQzNTE3N30.A_WVC9GRa7USe2DPbzVUWw3TuBHnyImVqBZnzuPJbMw';
+                    
+                    if (typeof supabase !== 'undefined') {
+                        this.supabase = supabase.createClient(sbUrl, sbKey);
+                        this.checkAuthAndLoad();
+                    }
+                },
+
+                async checkAuthAndLoad() {
+                    const { data: { session } } = await this.supabase.auth.getSession();
+                    this.session = session;
+                    
+                    if (session) {
+                        await this.loadCartData();
+                    } else {
+                        // Not logged in? The template guard will handle the UI blocking
+                        this.loading = false;
+                    }
+                },
+
+                async loadCartData() {
+                    try {
+                        // 1. Fetch Products Catalog (for prices/images)
+                        const { data: products } = await this.supabase.from('products').select('*');
+                        this.products = products;
+
+                        // 2. Fetch Cart Items
+                        const { data: cartItems } = await this.supabase
+                            .from('cart_items')
+                            .select('*')
+                            .eq('user_id', this.session.user.id);
+
+                        // 3. Hydrate Cart (Merge DB cart with Product info)
+                        this.cart = cartItems.map(item => {
+                            const product = this.products.find(p => p.id === item.product_id);
+                            if (!product) return null;
+                            return {
+                                ...product,
+                                quantity: item.quantity,
+                                size: item.size
+                            };
+                        }).filter(Boolean);
+
+                    } catch (error) {
+                        console.error('Error loading cart:', error);
+                        alert('Error loading cart. Please refresh.');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                async placeOrder() {
+                    if (this.cart.length === 0) return;
+                    this.processing = true;
+
+                    try {
+                        // 1. Insert Order Header
+                        const { data: orderData, error: orderError } = await this.supabase
+                            .from('orders')
+                            .insert({
+                                user_id: this.session.user.id,
+                                total_price: this.cartTotal,
+                                status: 'pending',
+                                payment_method: 'transfer',
+                                customer_name: this.form.name,
+                                customer_whatsapp: this.form.whatsapp,
+                                shipping_address: this.form.address,
+                                shipping_city: this.form.city
+                            })
+                            .select()
+                            .single();
+
+                        if (orderError) throw orderError;
+                        this.lastOrderId = orderData.id;
+
+                        // 2. Insert Order Items (Snapshot)
+                        const orderItemsData = this.cart.map(item => ({
+                            order_id: orderData.id,
+                            product_id: item.id,
+                            product_name: item.name,
+                            price_at_purchase: item.price,
+                            quantity: item.quantity,
+                            size: item.size,
+                            image_url: item.image
+                        }));
+
+                        const { error: itemsError } = await this.supabase
+                            .from('order_items')
+                            .insert(orderItemsData);
+
+                        if (itemsError) throw itemsError;
+
+                        // 3. Clear Shopping Cart
+                        await this.supabase
+                            .from('cart_items')
+                            .delete()
+                            .eq('user_id', this.session.user.id);
+
+                        // 4. Generate WhatsApp Link (Replace Phone Number with yours)
+                        const message = `Hello Aura! I just placed Order #${this.lastOrderId}. Name: ${this.form.name}. Total: ${this.formatMoney(this.cartTotal)}. I will send the transfer proof shortly.`;
+                        this.whatsappLink = `https://wa.me/6281234567890?text=${encodeURIComponent(message)}`;
+
+                        // 5. Success State
+                        this.orderSuccess = true;
+                        // Don't clear local cart array yet so we can show the total in the success modal, 
+                        // but technically the DB is empty.
+
+                    } catch (error) {
+                        console.error('Checkout error:', error);
+                        alert('Checkout failed: ' + error.message);
+                    } finally {
+                        this.processing = false;
+                    }
+                },
+
+                formatMoney(amount) {
+                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumSignificantDigits: 9 }).format(amount);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
