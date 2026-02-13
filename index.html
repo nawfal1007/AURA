@@ -4,79 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
-    <title>AURA APPAREL | Sustainable Indonesian Luxury Flagship</title>
-    <meta name="description" content="Official digital flagship of Aura Apparel. Sustainable fashion handcrafted in Java.">
-    <meta name="author" content="Titan Systems">
-    <link rel="icon" type="image/png" href="https://fav.farm/🌿">
+    <title>AURA APPAREL | Liquid Luxury Flagship</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
 
     <script>
-        window.tailwind.config = {
+        tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         aura: {
-                            /* Brand Core: Inspired by Indonesian Silk & Obsidian */
-                            base: '#FBFBF9',       /* Silk Pearl */
-                            dark: '#0A1A17',       /* Deep Volcanic Obsidian */
-                            accent: '#D4AF37',     /* Liquid Gold Leaf */
-                            
-                            /* Glassmorphism Layers */
+                            base: '#FBFBF9',       /* Silk */
+                            dark: '#0A1A17',       /* Obsidian */
+                            accent: '#D4AF37',     /* Gold */
+                            success: '#2D5A27',    /* Deep Forest */
+                            error: '#8B0000',      /* Crimson */
                             glass: 'rgba(255, 255, 255, 0.05)',
                             'glass-border': 'rgba(255, 255, 255, 0.22)',
-                            'glass-dark': 'rgba(10, 26, 23, 0.72)',
-                            
-                            /* Semantic/System Colors */
-                            error: '#9B2C2C',      /* Crimson Alert */
-                            success: '#2F855A',    /* Forest Growth */
-                            sand: '#E6E2DD'        /* Neutral Accents */
+                            'glass-dark': 'rgba(10, 26, 23, 0.75)'
                         }
                     },
                     fontFamily: {
                         sans: ['Lato', 'sans-serif'],
                         serif: ['Playfair Display', 'serif'],
                     },
-                    spacing: {
-                        '18': '4.5rem',
-                        '22': '5.5rem',
-                        '128': '32rem',
-                    },
                     animation: {
-                        /* High-End Motion Physics */
-                        'blob-slow': 'blob 22s infinite alternate ease-in-out',
-                        'blob-fast': 'blob 15s infinite alternate-reverse ease-in-out',
-                        'glass-slide': 'glassSlide 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                        'float-y': 'floatY 8s ease-in-out infinite',
-                        'shimmer-infinite': 'shimmer 2.5s linear infinite',
-                        'fade-in-quick': 'fadeIn 0.4s ease-out forwards',
+                        'blob': 'blob 18s infinite alternate ease-in-out',
+                        'glass-slide': 'glassSlide 1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'float': 'float 6s ease-in-out infinite',
+                        'shimmer': 'shimmer 2.5s linear infinite',
                     },
                     keyframes: {
                         blob: {
-                            '0%': { transform: 'translate(0px, 0px) scale(1) rotate(0deg)' },
-                            '33%': { transform: 'translate(30px, -40px) scale(1.1) rotate(15deg)' },
-                            '66%': { transform: 'translate(-40px, 20px) scale(0.9) rotate(-15deg)' },
-                            '100%': { transform: 'translate(0px, 0px) scale(1) rotate(0deg)' },
+                            '0%': { transform: 'translate(0,0) scale(1)' },
+                            '50%': { transform: 'translate(40px,-60px) scale(1.15)' },
+                            '100%': { transform: 'translate(0,0) scale(1)' }
                         },
                         glassSlide: {
-                            '0%': { opacity: '0', transform: 'translateY(40px) scale(0.96)', filter: 'blur(10px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0) scale(1)', filter: 'blur(0)' }
+                            '0%': { opacity: '0', transform: 'translateY(30px) scale(0.98)' },
+                            '100%': { opacity: '1', transform: 'translateY(0) scale(1)' }
                         },
-                        floatY: {
+                        float: {
                             '0%, 100%': { transform: 'translateY(0)' },
                             '50%': { transform: 'translateY(-20px)' }
                         },
                         shimmer: {
                             '0%': { backgroundPosition: '-200% 0' },
                             '100%': { backgroundPosition: '200% 0' }
-                        },
-                        fadeIn: {
-                            '0%': { opacity: '0' },
-                            '100%': { opacity: '1' }
                         }
                     }
                 }
@@ -85,39 +64,36 @@
     </script>
 
     <style>
-        /* 1. Global Reset & Performance Layer */
         [x-cloak] { display: none !important; }
         
         body, html { 
             overflow-x: hidden; 
-            width: 100%;
-            position: relative;
-            background-color: #FBFBF9;
-            -webkit-font-smoothing: antialiased;
+            width: 100%; 
+            position: relative; 
+            background: #FBFBF9;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        /* 2. THE LIQUID GLASS SYSTEM (Refraction Engine) */
-        .liquid-glass {
+        /* LIQUID GLASS REFRACTION */
+        .glass-refracted {
             background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(30px) saturate(180%);
-            -webkit-backdrop-filter: blur(30px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
-            transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(35px) saturate(180%);
+            -webkit-backdrop-filter: blur(35px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.05);
         }
 
-        .liquid-glass-dark {
-            background: rgba(10, 26, 23, 0.75);
-            backdrop-filter: blur(35px) saturate(140%);
-            -webkit-backdrop-filter: blur(35px) saturate(140%);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+        .glass-dark-refracted {
+            background: rgba(10, 26, 23, 0.82);
+            backdrop-filter: blur(40px) saturate(150%);
+            -webkit-backdrop-filter: blur(40px) saturate(150%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* 3. BIOLOGICAL BACKGROUND PHYSICS (Liquid Blobs) */
+        /* BIOLOGICAL BACKGROUND BLOBS */
         .canvas-blob {
             position: absolute;
-            width: 350px; height: 350px; /* Small default for mobile */
+            width: 300px; height: 300px;
             filter: blur(80px);
             border-radius: 50%;
             z-index: -1;
@@ -127,33 +103,36 @@
         }
 
         @media (min-width: 768px) {
-            .canvas-blob { 
-                width: 900px; 
-                height: 900px; 
-                filter: blur(140px); 
-            }
+            .canvas-blob { width: 900px; height: 900px; filter: blur(140px); }
         }
 
-        /* 4. SCROLLBAR ARCHITECTURE */
+        /* CUSTOM UTILITIES */
+        .luxury-glow {
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .text-glow-accent {
+            text-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
+        }
+
+        .vertical-text {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+
+        /* CUSTOM SCROLLBAR */
         ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { 
-            background: #0A1A17; 
-            border-radius: 20px; 
-            border: 1px solid rgba(255,255,255,0.1);
-        }
+        ::-webkit-scrollbar-thumb { background: #0A1A17; border-radius: 10px; }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 5. TYPOGRAPHY & INTERACTION UTILITIES */
-        .tracking-titan { letter-spacing: 0.6em; }
-        .text-glow-accent { text-shadow: 0 0 25px rgba(212, 175, 55, 0.4); }
-        .vertical-text { writing-mode: vertical-rl; }
-
-        .btn-refract {
+        .btn-liquid {
             position: relative;
             overflow: hidden;
             transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .btn-refract::before {
+        .btn-liquid::after {
             content: '';
             position: absolute;
             top: 0; left: -100%;
@@ -161,81 +140,66 @@
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
             transition: 0.8s;
         }
-        .btn-refract:hover::before { left: 100%; }
+        .btn-liquid:hover::after { left: 100%; }
 
-        /* Navigation Scrolled State */
         .nav-scrolled {
             background: rgba(251, 251, 249, 0.85) !important;
-            backdrop-filter: blur(20px) saturate(160%);
-            padding-top: 1rem !important;
-            padding-bottom: 1rem !important;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(25px) saturate(160%);
+            padding-top: 0.75rem !important;
+            padding-bottom: 0.75rem !important;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
         }
-
-        /* No-Scrollbar Utility (For Mobile Horizontal Swiping) */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 
 <body class="selection:bg-aura-dark selection:text-aura-accent" x-data="auraTitan()">
 
-    <div class="fixed inset-0 z-[-1] overflow-hidden bg-aura-base">
-        <div class="canvas-blob bg-blue-100 top-[-10%] left-[-10%] animate-blob-slow"></div>
-        <div class="canvas-blob bg-aura-accent/20 bottom-[-10%] right-[-10%] animate-blob-fast" style="animation-delay: 2s;"></div>
-        <div class="canvas-blob bg-pink-100 top-[35%] left-[20%] animate-blob-slow" style="animation-delay: 4s;"></div>
+    <div class="fixed inset-0 z-[-1] overflow-hidden">
+        <div class="canvas-blob bg-blue-100 top-[-15%] left-[-10%] animate-blob"></div>
+        <div class="canvas-blob bg-aura-accent/20 bottom-[-10%] right-[-10%] animate-blob" style="animation-delay: 4s;"></div>
+        <div class="canvas-blob bg-pink-100 top-[40%] left-[25%] animate-blob" style="animation-delay: 8s;"></div>
     </div>
 
-
-    <div class="fixed top-10 right-6 z-[300] flex flex-col gap-4 pointer-events-none">
+    <div class="fixed top-8 right-6 z-[300] flex flex-col gap-4 pointer-events-none">
         <template x-for="toast in toasts" :key="toast.id">
             <div x-show="toast.visible" 
                  x-transition:enter="transition ease-out duration-600 transform"
-                 x-transition:enter-start="opacity-0 translate-x-20 scale-90"
+                 x-transition:enter-start="opacity-0 translate-x-12 scale-90"
                  x-transition:enter-end="opacity-100 translate-x-0 scale-100"
                  x-transition:leave="transition ease-in duration-400 opacity-0 translate-x-10"
-                 class="liquid-glass-dark text-white px-8 py-5 rounded-3xl flex items-center gap-5 min-w-[320px] shadow-2xl pointer-events-auto border-l-4 border-aura-accent">
+                 class="glass-dark-refracted text-white px-8 py-5 rounded-3xl flex items-center gap-5 min-w-[340px] shadow-2xl pointer-events-auto border-l-4"
+                 :class="toast.type === 'error' ? 'border-aura-error' : 'border-aura-accent'">
                 
                 <div class="w-12 h-12 rounded-full flex items-center justify-center bg-white/10 border border-white/10">
                     <i class="ph-fill ph-sparkle text-aura-accent text-2xl animate-pulse"></i>
                 </div>
-
-                <div class="flex-1">
-                    <h4 class="text-[9px] font-bold uppercase tracking-titan text-aura-accent mb-0.5" x-text="toast.title"></h4>
-                    <p class="text-xs font-light text-white/70" x-text="toast.message"></p>
+                <div>
+                    <h4 class="text-[10px] font-bold uppercase tracking-[0.4em] text-aura-accent" x-text="toast.title"></h4>
+                    <p class="text-xs font-light text-white/70 mt-1" x-text="toast.message"></p>
                 </div>
-
-                <button @click="removeToast(toast.id)" class="text-white/20 hover:text-white transition-colors">
-                    <i class="ph ph-x-circle text-xl"></i>
-                </button>
             </div>
         </template>
     </div>
 
-
-    <header class="fixed top-0 w-full z-[100] transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] px-4 md:px-8 py-8 md:py-14"
+    <header class="fixed top-0 w-full z-[100] transition-all duration-1000 ease-in-out px-4 md:px-8 py-8 md:py-12"
             :class="scrolled && 'nav-scrolled'">
         
         <div class="max-w-7xl mx-auto">
-            <div class="liquid-glass rounded-full px-6 md:px-12 py-4 md:py-6 flex justify-between items-center transition-all duration-1000"
-                 :class="scrolled ? 'shadow-2xl translate-y-0 border-white/30' : 'border-transparent bg-transparent backdrop-blur-none shadow-none'">
+            <div class="glass-refracted rounded-full px-8 md:px-12 py-4 md:py-6 flex justify-between items-center transition-all duration-700"
+                 :class="scrolled ? 'shadow-2xl border-white/40' : 'border-transparent bg-transparent backdrop-blur-none'">
                 
-                <div class="flex items-center gap-4 md:gap-10 w-1/4">
+                <div class="flex items-center gap-6 md:gap-10 w-1/4">
                     <button @click="mobileMenuOpen = true" 
                             class="p-2 hover:text-aura-accent transition-all duration-500 transform hover:scale-110 active:scale-90">
                         <i class="ph ph-list text-3xl md:text-4xl"></i>
                     </button>
                     
                     <template x-if="isAdmin">
-                        <a href="admin.html" class="hidden lg:flex items-center gap-4 bg-aura-dark text-white px-8 py-3 rounded-full text-[10px] font-bold uppercase tracking-[0.25em] shadow-xl hover:bg-aura-accent hover:text-aura-dark transition-all duration-700 btn-refract group">
-                            <i class="ph-fill ph-shield-star text-aura-accent group-hover:text-aura-dark transition-colors"></i>
-                            Admin Vault
+                        <a href="admin.html" class="hidden lg:flex items-center gap-3 bg-aura-dark text-white px-6 py-2.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] shadow-xl hover:bg-aura-accent hover:text-aura-dark transition-all duration-700 btn-liquid group">
+                            <i class="ph-fill ph-crown text-aura-accent group-hover:text-aura-dark transition-colors"></i>
+                            Console
                         </a>
                     </template>
-                    
-                    <div x-show="!isAdmin" class="hidden xl:block">
-                        <span class="text-[9px] uppercase tracking-[0.6em] text-aura-dark/20 font-bold">Artisan Heritage</span>
-                    </div>
                 </div>
 
                 <div class="flex-1 text-center">
@@ -243,38 +207,34 @@
                         <h1 class="text-xl md:text-4xl font-serif font-bold tracking-[0.4em] uppercase transition-all duration-1000 group-hover:tracking-[0.55em]">
                             AURA<span class="text-aura-accent">.</span>
                         </h1>
-                        <div class="absolute -inset-4 bg-aura-accent/5 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000 -z-10"></div>
                     </a>
                 </div>
 
-                <div class="w-1/4 flex justify-end items-center gap-6 md:gap-12">
-                    <nav class="hidden lg:flex gap-12 text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400">
-                        <a href="#shop" class="hover:text-aura-dark transition-colors duration-500 relative group">
-                            Catalog
-                            <span class="absolute -bottom-2 left-0 w-0 h-0.5 bg-aura-dark transition-all duration-500 group-hover:w-full"></span>
-                        </a>
+                <div class="w-1/4 flex justify-end items-center gap-6 md:gap-10">
+                    <nav class="hidden lg:flex gap-10 text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400">
+                        <a href="#shop" class="hover:text-aura-dark transition duration-500">Shop</a>
                         <template x-if="session">
-                            <a href="profile.html" class="text-aura-dark hover:text-aura-accent transition-colors">My Dossier</a>
+                            <a href="profile.html" class="text-aura-dark">Orders</a>
                         </template>
                     </nav>
 
-                    <div class="flex items-center gap-4 md:gap-10 border-l border-gray-200 pl-6 md:pl-12">
+                    <div class="flex items-center gap-4 md:gap-8 border-l border-gray-200 pl-6 md:pl-10">
                         <template x-if="!session">
-                            <a href="loginpage.html" class="hover:text-aura-accent transition-all duration-500 transform hover:scale-110 active:scale-90" title="Access Account">
-                                <i class="ph ph-user-focus text-3xl md:text-4xl"></i>
+                            <a href="loginpage.html" class="hover:text-aura-accent transition duration-500 transform hover:scale-110 active:scale-90">
+                                <i class="ph ph-user-circle text-3xl md:text-4xl"></i>
                             </a>
                         </template>
                         <template x-if="session">
-                            <button @click="handleLogout" class="hover:text-aura-error transition-all duration-500 transform hover:rotate-90" title="Secure Exit">
+                            <button @click="handleLogout" class="hover:text-aura-error transition duration-500 transform hover:rotate-90">
                                 <i class="ph ph-sign-out text-3xl md:text-4xl"></i>
                             </button>
                         </template>
 
-                        <button @click="cartOpen = true" class="relative group active:scale-90 transition-transform duration-300">
+                        <button @click="cartOpen = true" class="relative group active:scale-90 transition-transform">
                             <i class="ph ph-tote text-3xl md:text-4xl group-hover:text-aura-accent transition-colors duration-500"></i>
                             <span x-show="cartCount > 0" 
                                   x-cloak
-                                  class="absolute -top-1 -right-1 bg-aura-dark text-aura-accent text-[9px] w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center font-bold shadow-2xl border-2 border-white animate-bounce" 
+                                  class="absolute -top-1 -right-1 bg-aura-dark text-aura-accent text-[9px] w-6 h-6 rounded-full flex items-center justify-center font-bold shadow-2xl border-2 border-white animate-bounce" 
                                   x-text="cartCount"></span>
                         </button>
                     </div>
@@ -283,8 +243,7 @@
         </div>
     </header>
 
-    ```
-<section class="relative min-h-[95vh] md:min-h-screen flex items-center justify-center pt-28 md:pt-40 pb-20 overflow-hidden px-4 md:px-12">
+    <section class="relative min-h-[90vh] md:min-h-screen flex items-center justify-center pt-28 md:pt-40 pb-20 overflow-hidden px-4 md:px-12">
         <div class="container mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 md:gap-24 items-center">
             
             <div class="lg:col-span-5 z-20 text-center lg:text-left order-2 lg:order-1" 
@@ -296,21 +255,21 @@
                         <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-aura-accent opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-3 w-3 bg-aura-accent"></span>
                     </span>
-                    <span class="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.5em] md:tracking-[0.6em] relative z-10">Loom Series • 2026</span>
+                    <span class="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.5em] md:tracking-[0.6em] relative z-10">Edition Protocol • 2026</span>
                 </div>
 
-                <h2 class="text-5xl md:text-8xl lg:text-[10rem] font-serif font-medium leading-[0.85] md:leading-[0.8] mb-10 md:mb-14 text-aura-dark tracking-tighter">
+                <h2 class="text-6xl md:text-8xl lg:text-[10rem] font-serif font-medium leading-[0.85] md:leading-[0.8] mb-10 md:mb-14 text-aura-dark tracking-tighter">
                     Liquid <br>
-                    <span class="italic text-gray-300 text-glow-accent">Essence.</span>
+                    <span class="italic text-gray-300 luxury-glow">Silence.</span>
                 </h2>
 
                 <p class="max-w-md mx-auto lg:mx-0 text-gray-500 font-light text-base md:text-xl leading-relaxed mb-12 md:mb-16 border-l-0 lg:border-l-4 border-aura-accent/30 pl-0 lg:pl-10">
-                    Discover a digital flagship where sustainable Javanese silk flows like mercury. Handcrafted artifacts designed for the conscious modern soul.
+                    A digital flagship experience where sustainable Javanese silk flows like water. Handcrafted artifacts for the conscious modern spirit.
                 </p>
 
                 <div class="flex flex-col sm:flex-row gap-6 md:gap-8 justify-center lg:justify-start pt-4">
-                    <a href="#shop" class="bg-aura-dark text-white px-14 md:px-20 py-5 md:py-7 rounded-full text-[10px] md:text-[11px] font-bold uppercase tracking-[0.4em] md:tracking-[0.5em] shadow-2xl hover:bg-aura-accent hover:text-aura-dark transition-all duration-700 transform hover:-translate-y-2 btn-refract text-center">
-                        Archive Access
+                    <a href="#shop" class="bg-aura-dark text-white px-14 md:px-20 py-5 md:py-7 rounded-full text-[10px] md:text-[11px] font-bold uppercase tracking-[0.4em] md:tracking-[0.5em] shadow-2xl hover:bg-aura-accent hover:text-aura-dark transition-all duration-700 transform hover:-translate-y-2 btn-liquid text-center">
+                        Explore Archive
                     </a>
                     <button @click="scrollToAbout" class="glass-refracted text-aura-dark px-10 md:px-16 py-5 md:py-7 rounded-full text-[10px] md:text-[11px] font-bold uppercase tracking-[0.4em] md:tracking-[0.5em] hover:bg-white transition-all duration-700 shadow-lg">
                         The Narrative
@@ -319,118 +278,88 @@
             </div>
 
             <div class="lg:col-span-7 relative group order-1 lg:order-2">
-                <div class="relative w-full aspect-[4/5] glass-refracted p-4 md:p-8 rounded-[3.5rem] md:rounded-[4.5rem] shadow-2xl animate-float-y transition-all duration-1000 group-hover:scale-[1.02]">
-                    <div class="w-full h-full rounded-[2.8rem] md:rounded-[3.8rem] overflow-hidden relative shadow-inner bg-aura-sand">
-                        <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2000" 
-                             alt="Luxury Aura Silk Apparel" 
+                <div class="relative w-full aspect-[4/5] glass-refracted p-4 md:p-8 rounded-[3.5rem] md:rounded-[4.5rem] shadow-2xl animate-float transition-all duration-1000 group-hover:scale-[1.02]">
+                    <div class="w-full h-full rounded-[2.8rem] md:rounded-[3.8rem] overflow-hidden relative shadow-inner">
+                        <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=2000" 
+                             alt="Luxury Sustainable Apparel" 
                              class="w-full h-full object-cover transition-transform duration-[4s] group-hover:scale-110 brightness-95 group-hover:brightness-100">
-                        
                         <div class="absolute inset-0 bg-gradient-to-tr from-aura-dark/20 via-transparent to-white/20 mix-blend-overlay pointer-events-none"></div>
                     </div>
-
-                    <div class="absolute -top-12 -right-8 glass-dark-refracted p-8 md:p-12 rounded-3xl shadow-2xl animate-float-y hidden md:block" style="animation-delay: 1.5s;">
+                    
+                    <div class="absolute -top-10 -right-8 glass-dark-refracted p-8 md:p-12 rounded-3xl shadow-2xl animate-float hidden md:block" style="animation-delay: 1s;">
                         <div class="flex items-center gap-6 text-white">
-                            <div class="w-14 h-14 rounded-full bg-aura-accent flex items-center justify-center text-aura-dark">
-                                <i class="ph-fill ph-leaf text-3xl"></i>
-                            </div>
+                            <i class="ph-fill ph-fingerprint text-4xl text-aura-accent"></i>
                             <div>
-                                <p class="text-2xl font-serif font-bold text-aura-accent leading-none mb-1">100%</p>
-                                <p class="text-[9px] uppercase tracking-[0.4em] opacity-40">Bio-Organic</p>
+                                <p class="text-2xl font-serif font-bold text-aura-accent leading-none mb-1">Traceable</p>
+                                <p class="text-[9px] uppercase tracking-widest opacity-40">Origin Security</p>
                             </div>
                         </div>
                     </div>
 
-                    <div class="absolute -bottom-8 -left-6 md:-bottom-12 md:-left-16 glass-refracted p-8 md:p-12 rounded-[2rem] md:rounded-[3rem] shadow-2xl animate-float-y" style="animation-delay: 3.5s;">
-                        <p class="text-3xl md:text-6xl font-serif font-bold text-aura-dark mb-1 md:mb-2 text-glow-accent italic">Java</p>
-                        <p class="text-[9px] md:text-[11px] text-gray-400 font-bold uppercase tracking-[0.4em] md:tracking-[0.5em]">Central Source</p>
+                    <div class="absolute -bottom-8 -left-6 md:-bottom-12 md:-left-16 glass-refracted p-8 md:p-12 rounded-[2rem] md:rounded-[3rem] shadow-2xl animate-float" style="animation-delay: 3s;">
+                        <p class="text-4xl md:text-6xl font-serif font-bold text-aura-dark mb-1 md:mb-2 italic">100%</p>
+                        <p class="text-[9px] md:text-[11px] text-gray-400 font-bold uppercase tracking-[0.4em] md:tracking-[0.5em]">Artisan Sourced</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="absolute bottom-12 left-10 flex flex-col items-center gap-12 opacity-30 hidden xl:flex">
-            <span class="vertical-text uppercase text-[10px] font-bold tracking-[1em] text-aura-dark">System Protocol • Identity</span>
+        <div class="absolute bottom-16 left-12 flex flex-col items-center gap-10 opacity-30 hidden xl:flex">
+            <span class="vertical-text uppercase text-[9px] font-bold tracking-[0.8em]">Aura • Identity • System</span>
             <div class="w-px h-40 bg-gradient-to-b from-aura-dark to-transparent animate-pulse"></div>
         </div>
     </section>
 
     <section class="py-32 md:py-56 bg-white border-y border-aura-dark/5 relative overflow-hidden">
-        <div class="absolute top-0 right-0 w-96 h-96 bg-aura-accent/5 rounded-full blur-[100px] -z-10"></div>
-        
         <div class="container mx-auto px-6">
-            <div class="flex flex-col md:flex-row items-center gap-20 md:gap-32">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-24 items-center">
                 
-                <div class="w-full md:w-1/2 grid grid-cols-2 gap-8 md:gap-16 order-2 md:order-1" x-intersect="$el.classList.add('animate-glass-slide')">
-                    <div class="space-y-4 md:space-y-6 group">
-                        <div class="w-16 h-16 glass-refracted rounded-2xl flex items-center justify-center group-hover:bg-aura-dark group-hover:text-white transition-all duration-700">
-                            <i class="ph ph-waves text-3xl"></i>
-                        </div>
-                        <h4 class="text-4xl md:text-5xl font-serif text-aura-dark">12k</h4>
-                        <p class="text-[9px] md:text-[10px] uppercase tracking-[0.4em] text-gray-400 font-bold leading-relaxed">Liters of Water <br>Recovered (2026)</p>
+                <div class="space-y-10 group" x-intersect="$el.classList.add('animate-glass-slide')">
+                    <div class="w-20 h-20 glass-refracted rounded-2xl flex items-center justify-center group-hover:bg-aura-dark group-hover:text-white transition-all duration-700">
+                        <i class="ph ph-hand-heart text-4xl"></i>
                     </div>
-                    <div class="space-y-4 md:space-y-6 group">
-                        <div class="w-16 h-16 glass-refracted rounded-2xl flex items-center justify-center group-hover:bg-aura-dark group-hover:text-white transition-all duration-700">
-                            <i class="ph ph-tree text-3xl"></i>
-                        </div>
-                        <h4 class="text-4xl md:text-5xl font-serif text-aura-dark">0%</h4>
-                        <p class="text-[9px] md:text-[10px] uppercase tracking-[0.4em] text-gray-400 font-bold leading-relaxed">Deforestation <br>Supply Path</p>
-                    </div>
-                    <div class="space-y-4 md:space-y-6 group">
-                        <div class="w-16 h-16 glass-refracted rounded-2xl flex items-center justify-center group-hover:bg-aura-dark group-hover:text-white transition-all duration-700">
-                            <i class="ph ph-users text-3xl"></i>
-                        </div>
-                        <h4 class="text-4xl md:text-5xl font-serif text-aura-dark">65+</h4>
-                        <p class="text-[9px] md:text-[10px] uppercase tracking-[0.4em] text-gray-400 font-bold leading-relaxed">Collaborative <br>Artisan Families</p>
-                    </div>
-                    <div class="space-y-4 md:space-y-6 group">
-                        <div class="w-16 h-16 glass-refracted rounded-2xl flex items-center justify-center group-hover:bg-aura-dark group-hover:text-white transition-all duration-700">
-                            <i class="ph ph-heartbeat text-3xl"></i>
-                        </div>
-                        <h4 class="text-4xl md:text-5xl font-serif text-aura-dark">Life</h4>
-                        <p class="text-[9px] md:text-[10px] uppercase tracking-[0.4em] text-gray-400 font-bold leading-relaxed">Warranty on <br>Every Thread</p>
-                    </div>
+                    <h4 class="text-4xl font-serif text-aura-dark italic">65+ Artisans</h4>
+                    <p class="text-gray-500 font-light leading-relaxed">Supporting a network of master weavers across Central Java through fair-wage stability and healthcare protocols.</p>
                 </div>
 
-                <div class="w-full md:w-1/2 order-1 md:order-2" x-intersect="$el.classList.add('animate-glass-slide')">
-                    <span class="text-aura-accent font-bold uppercase tracking-[0.6em] text-[10px] md:text-[11px] block mb-8">Systemic Integrity</span>
-                    <h3 class="text-4xl md:text-7xl font-serif text-aura-dark leading-[0.9] mb-12">Fashion as a <br><span class="italic text-gray-300">Force for Good.</span></h3>
-                    <div class="space-y-8 text-gray-500 font-light text-base md:text-xl leading-relaxed">
-                        <p>We do not produce fashion; we steward an ecosystem. Aura pieces are designed with a circular philosophy—where every fiber can return to the earth.</p>
-                        <p>Our workshop in Yogyakarta operates on a 100% solar grid, blending seven generations of weaving knowledge with modern regenerative technology.</p>
+                <div class="space-y-10 group" x-intersect="$el.classList.add('animate-glass-slide')" style="animation-delay: 0.2s;">
+                    <div class="w-20 h-20 glass-refracted rounded-2xl flex items-center justify-center group-hover:bg-aura-dark group-hover:text-white transition-all duration-700">
+                        <i class="ph ph-waves text-4xl"></i>
                     </div>
-                    <div class="pt-12">
-                        <button class="inline-flex items-center gap-6 group">
-                            <span class="text-aura-accent font-bold uppercase tracking-[0.5em] text-[10px] group-hover:text-aura-dark transition-colors duration-500">View Transparency Dossier</span>
-                            <div class="w-14 h-14 rounded-full glass-refracted flex items-center justify-center group-hover:bg-aura-accent group-hover:text-white transition-all duration-700 group-hover:scale-110">
-                                <i class="ph ph-arrow-right text-2xl"></i>
-                            </div>
-                        </button>
+                    <h4 class="text-4xl font-serif text-aura-dark italic">Zero Waste</h4>
+                    <p class="text-gray-500 font-light leading-relaxed">Our circular design philosophy ensures every thread is biodegradable, leaving zero synthetic footprint on Indonesian soil.</p>
+                </div>
+
+                <div class="space-y-10 group" x-intersect="$el.classList.add('animate-glass-slide')" style="animation-delay: 0.4s;">
+                    <div class="w-20 h-20 glass-refracted rounded-2xl flex items-center justify-center group-hover:bg-aura-dark group-hover:text-white transition-all duration-700">
+                        <i class="ph ph-shield-check text-4xl"></i>
                     </div>
+                    <h4 class="text-4xl font-serif text-aura-dark italic">Pure Origin</h4>
+                    <p class="text-gray-500 font-light leading-relaxed">Direct sourcing from silk farms in the highlands, eliminating middlemen to maximize artisan profit and transparency.</p>
                 </div>
 
             </div>
         </div>
     </section>
 
-
-    <main id="shop" class="relative py-32 md:py-60 bg-transparent">
+    <main id="shop" class="relative py-32 md:py-60">
         <div class="container mx-auto px-6">
             
-            <div class="flex flex-col md:flex-row justify-between items-center md:items-end mb-24 md:mb-32 border-b border-aura-dark/5 pb-16 md:pb-24 relative">
+            <div class="flex flex-col md:flex-row justify-between items-center md:items-end mb-24 md:mb-32 border-b border-aura-dark/5 pb-16 md:pb-24">
                 <div class="max-w-2xl text-center md:text-left mb-16 md:mb-0" x-intersect="$el.classList.add('animate-glass-slide')">
                     <span class="text-aura-accent font-bold uppercase tracking-[0.6em] text-[10px] md:text-[11px] block mb-6">Archive Access</span>
                     <h2 class="text-5xl md:text-9xl font-serif text-aura-dark leading-[0.85] mb-8">The Collection<span class="text-gray-200">.</span></h2>
                     <p class="text-gray-400 font-light text-base md:text-xl leading-relaxed max-w-lg">
-                        Meticulously curated artifacts. Sustainable perfection generated on-demand to eliminate inventory waste.
+                        Meticulously curated artifacts generated in limited seasonal drops.
                     </p>
                 </div>
                 
                 <div class="w-full md:w-auto overflow-x-auto no-scrollbar pb-4 md:pb-0">
-                    <div class="inline-flex glass-refracted p-2.5 md:p-3 rounded-full gap-2 md:gap-4 shadow-2xl transition-all duration-700 hover:scale-[1.01]">
-                        <template x-for="cat in ['All', 'Tops', 'Bottoms', 'Dresses', 'Accessories']">
+                    <div class="inline-flex glass-refracted p-2.5 md:p-3 rounded-full gap-2 md:gap-4 shadow-2xl transition-all duration-700">
+                        <template x-for="cat in ['All', 'Tops', 'Bottoms', 'Dresses']">
                             <button @click="activeCategory = cat" 
-                                    :class="activeCategory === cat ? 'bg-aura-dark text-white shadow-2xl scale-105' : 'hover:bg-aura-base text-gray-400 hover:text-aura-dark'"
-                                    class="px-8 md:px-14 py-4 md:py-5 rounded-full text-[9px] md:text-[11px] font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] transition-all duration-700 ease-out whitespace-nowrap"
+                                    :class="activeCategory === cat ? 'bg-aura-dark text-white shadow-2xl' : 'hover:bg-aura-base text-gray-400 hover:text-aura-dark'"
+                                    class="px-8 md:px-14 py-4 md:py-5 rounded-full text-[9px] md:text-[11px] font-bold uppercase tracking-[0.3em] md:tracking-[0.4em] transition-all duration-700 whitespace-nowrap"
                                     x-text="cat"></button>
                     </template>
                     </div>
@@ -439,12 +368,9 @@
 
             <div x-show="productsLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 md:gap-16">
                 <template x-for="i in 4">
-                    <div class="glass-refracted p-5 md:p-6 rounded-[2.5rem] md:rounded-[3.5rem] space-y-10 animate-pulse">
-                        <div class="aspect-[3/4] rounded-[2rem] md:rounded-[2.8rem] bg-gray-100/50"></div>
-                        <div class="space-y-4 px-4 pb-4">
-                            <div class="h-8 bg-gray-100/50 w-3/4 rounded-lg"></div>
-                            <div class="h-5 bg-gray-100/50 w-1/4 rounded-lg"></div>
-                        </div>
+                    <div class="glass-refracted p-5 md:p-6 rounded-[3.5rem] space-y-10 animate-pulse">
+                        <div class="aspect-[3/4] rounded-[2.5rem] bg-gray-100/50"></div>
+                        <div class="h-8 bg-gray-100/50 w-3/4 mx-auto rounded-lg"></div>
                     </div>
                 </template>
             </div>
@@ -453,15 +379,15 @@
                 <template x-for="product in filteredProducts" :key="product.id">
                     <div class="group flex flex-col h-full animate-glass-slide">
                         
-                        <div class="glass-refracted p-4 md:p-6 rounded-[3rem] md:rounded-[3.5rem] transition-all duration-1000 group-hover:shadow-[0_40px_80px_rgba(0,0,0,0.08)] group-hover:-translate-y-8 relative overflow-hidden">
+                        <div class="glass-refracted p-4 md:p-6 rounded-[3rem] transition-all duration-1000 group-hover:shadow-[0_40px_80px_rgba(0,0,0,0.08)] group-hover:-translate-y-8 relative overflow-hidden">
                             
                             <div class="relative aspect-[3/4] overflow-hidden rounded-[2.2rem] md:rounded-[2.5rem] bg-aura-base mb-10 shadow-inner cursor-pointer">
                                 <img :src="product.image" 
-                                     class="w-full h-full object-cover transition-transform duration-[3s] ease-out group-hover:scale-110 group-hover:rotate-1">
+                                     class="w-full h-full object-cover transition-transform duration-[3s] group-hover:scale-110">
                                 
                                 <div class="absolute top-6 left-6 md:top-8 md:left-8 flex flex-col gap-3 md:gap-4 z-10 pointer-events-none">
-                                    <span x-show="product.badge" class="glass-dark-refracted text-aura-accent text-[9px] font-bold uppercase tracking-[0.4em] px-5 py-2 md:px-7 md:py-3 rounded-full border border-white/10 shadow-2xl" x-text="product.badge"></span>
-                                    <span x-show="product.is_new" class="bg-white/95 text-aura-dark text-[9px] font-bold uppercase tracking-[0.4em] px-5 py-2 md:px-7 md:py-3 rounded-full shadow-2xl">Limited Run</span>
+                                    <span x-show="product.badge" class="glass-dark-refracted text-aura-accent text-[9px] font-bold uppercase tracking-[0.4em] px-5 py-2 md:px-7 md:py-3 rounded-full border border-white/10" x-text="product.badge"></span>
+                                    <span x-show="product.is_new" class="bg-white/95 text-aura-dark text-[9px] font-bold uppercase tracking-[0.4em] px-5 py-2 md:px-7 md:py-3 rounded-full shadow-2xl">New Release</span>
                                 </div>
 
                                 <div class="absolute inset-x-0 bottom-0 p-8 md:p-12 translate-y-full group-hover:translate-y-0 transition-transform duration-[0.7s] ease-[cubic-bezier(0.16,1,0.3,1)] glass-dark-refracted border-t border-white/5">
@@ -474,7 +400,7 @@
                                             </button>
                                         </template>
                                     </div>
-                                    <p class="text-[8px] md:text-[9px] text-white/20 text-center mt-8 md:mt-10 uppercase tracking-[0.4em]">Encrypted Dispatch Ready</p>
+                                    <p class="text-[8px] md:text-[9px] text-white/20 text-center mt-8 md:mt-10 uppercase tracking-[0.4em]">Hand-Packaged Dispatch</p>
                                 </div>
                             </div>
 
@@ -508,9 +434,7 @@
                     
                     <button @click="toggleArchive()" 
                             class="relative z-10 glass-refracted text-aura-dark px-16 md:px-24 py-6 md:py-10 rounded-full text-[11px] md:text-[13px] font-bold uppercase tracking-[0.4em] md:tracking-[0.6em] hover:bg-aura-dark hover:text-white transition-all duration-1000 shadow-2xl flex items-center gap-6 md:gap-10 group active:scale-95">
-                        
-                        <span x-text="archiveExpanded ? 'Collapse Archive' : 'View Entire Collection'"></span>
-                        
+                        <span x-text="archiveExpanded ? 'Collapse Collection' : 'View Entire Archive'"></span>
                         <div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-aura-dark group-hover:bg-aura-accent flex items-center justify-center transition-all duration-700">
                             <i class="ph-bold text-white group-hover:text-aura-dark text-xl md:text-2xl transition-transform duration-700"
                                :class="archiveExpanded ? 'ph-caret-up rotate-180' : 'ph-arrow-right'"></i>
@@ -519,12 +443,113 @@
                 </div>
                 
                 <p class="mt-12 text-[9px] md:text-[10px] uppercase tracking-[0.8em] text-gray-300 font-bold" x-show="!archiveExpanded">
-                    + <span x-text="products.length - 8"></span> Artifacts in Vault
+                    + <span x-text="products.length > 8 ? products.length - 8 : 0"></span> Artifacts in Vault
                 </p>
             </div>
 
         </div>
     </main>
+
+    <section id="story" class="bg-aura-dark text-white py-40 md:py-60 relative overflow-hidden">
+        
+        <div class="absolute top-0 right-0 w-full h-full opacity-10 pointer-events-none">
+            <div class="absolute inset-0 bg-gradient-to-bl from-white/20 via-transparent to-transparent"></div>
+        </div>
+
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="flex flex-col lg:flex-row items-center gap-24 md:gap-40">
+                
+                <div class="w-full lg:w-1/2 relative group">
+                    <div class="glass-refracted p-6 md:p-10 rounded-[3rem] md:rounded-[5rem] border-white/5 transition-all duration-[2s] group-hover:rotate-1 shadow-2xl" 
+                         x-intersect="$el.classList.add('animate-glass-slide')">
+                        <img src="https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=2070" 
+                             alt="Master Weaver" 
+                             class="w-full h-[500px] md:h-[800px] object-cover rounded-[2.5rem] md:rounded-[4rem] grayscale group-hover:grayscale-0 transition-all duration-[2.5s] scale-105 group-hover:scale-100">
+                        
+                        <div class="absolute -top-10 -right-10 glass-dark-refracted p-10 rounded-[2.5rem] shadow-2xl animate-float hidden xl:block">
+                            <p class="text-[10px] font-bold uppercase tracking-[0.6em] text-aura-accent mb-4 block">Archive Quality</p>
+                            <h4 class="text-4xl font-serif font-bold text-white mb-2 italic">GOTS 7.0</h4>
+                            <p class="text-xs text-white/30 max-w-[120px] leading-relaxed font-light">Verified organic traceability for every thread.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-full lg:w-1/2 space-y-12 md:y-20">
+                    <div x-intersect="$el.classList.add('animate-glass-slide')">
+                        <div class="flex items-center gap-8 mb-8 md:mb-12">
+                            <span class="text-aura-accent font-bold uppercase tracking-[0.8em] text-[10px] md:text-xs">The Lineage</span>
+                            <div class="h-px w-24 md:w-32 bg-aura-accent/30 animate-pulse"></div>
+                        </div>
+                        <h2 class="text-4xl md:text-[6.5rem] font-serif leading-[0.95] md:leading-[0.85] mb-10 md:mb-16 tracking-tighter">
+                            Pure Soul. <br>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-aura-accent to-yellow-100 luxury-glow">Modern Form.</span>
+                        </h2>
+                        <div class="space-y-6 md:space-y-10 text-white/50 text-lg md:text-2xl font-light leading-relaxed max-w-xl">
+                            <p>Aura was forged in the volcanic highlands of Central Java. We do not manufacture; we cultivate. Every garment represents a lineage of artisan knowledge passed down through generations.</p>
+                            <p>Our design language is a silent protest against the noise of fast fashion. We choose form over trend, and heritage over synthetic waste.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-10 md:gap-20 pt-12 md:pt-20 border-t border-white/5" x-intersect="$el.classList.add('animate-glass-slide')">
+                        <div class="space-y-2 md:space-y-4">
+                            <p class="text-4xl md:text-7xl font-serif text-aura-accent luxury-glow leading-none">22k</p>
+                            <p class="text-[9px] md:text-[11px] uppercase tracking-[0.4em] text-white/30 font-bold leading-relaxed uppercase">Liters Water <br>Recovered 2026</p>
+                        </div>
+                        <div class="space-y-2 md:space-y-4">
+                            <p class="text-4xl md:text-7xl font-serif text-aura-accent luxury-glow leading-none">0%</p>
+                            <p class="text-[9px] md:text-[11px] uppercase tracking-[0.4em] text-white/30 font-bold leading-relaxed uppercase">Synthetic <br>Waste path</p>
+                        </div>
+                    </div>
+
+                    <div class="pt-10">
+                        <button class="inline-flex items-center gap-8 group">
+                            <span class="text-aura-accent uppercase font-bold tracking-[0.5em] text-[10px] group-hover:text-white transition-all duration-700">Transparency Dossier</span>
+                            <div class="w-14 h-14 md:w-20 md:h-20 rounded-full glass-refracted flex items-center justify-center transition-all duration-1000 group-hover:bg-aura-accent group-hover:text-aura-dark group-hover:scale-125 shadow-2xl">
+                                <i class="ph ph-arrow-right text-2xl md:text-3xl"></i>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div x-show="mobileMenuOpen" class="fixed inset-0 z-[250] lg:hidden" x-cloak>
+        <div class="absolute inset-0 bg-aura-dark/80 backdrop-blur-2xl transition-opacity duration-700" @click="mobileMenuOpen = false"></div>
+        
+        <div class="relative w-[85%] h-full glass-dark-refracted p-10 md:p-14 flex flex-col transform transition-transform duration-700"
+             x-transition:enter="translate-x-[-100%]" x-transition:enter-end="translate-x-0"
+             x-transition:leave="translate-x-0" x-transition:leave-end="translate-x-[-100%]">
+            
+            <div class="flex justify-between items-center mb-20 md:mb-24">
+                <span class="text-2xl font-serif font-bold tracking-[0.4em] text-white">AURA.</span>
+                <button @click="mobileMenuOpen = false" class="text-white/40 active:scale-90"><i class="ph ph-x text-4xl"></i></button>
+            </div>
+
+            <nav class="flex-1 flex flex-col gap-10 md:gap-12 text-4xl md:text-5xl font-serif text-white/50">
+                <a href="#shop" @click="mobileMenuOpen = false" class="block hover:text-aura-accent transition duration-500">Collection</a>
+                <a href="catalog.html" class="block hover:text-aura-accent transition duration-500">Catalog</a>
+                
+                <div x-show="session" class="space-y-10 border-t border-white/5 pt-10">
+                    <a href="profile.html" class="block text-aura-accent italic">My Orders</a>
+                    <template x-if="isAdmin">
+                        <a href="admin.html" class="block text-sm font-sans font-bold uppercase tracking-[0.4em] bg-aura-accent text-aura-dark p-6 rounded-2xl text-center shadow-2xl">Vault Access</a>
+                    </template>
+                </div>
+            </nav>
+
+            <div class="mt-auto pt-10 border-t border-white/5">
+                <template x-if="!session">
+                    <a href="loginpage.html" class="block w-full bg-white text-aura-dark py-5 rounded-2xl text-center text-[10px] font-bold uppercase tracking-[0.4em]">Identify Identity</a>
+                </template>
+                <div x-show="session" class="flex flex-col gap-6">
+                    <p class="text-[9px] uppercase tracking-[0.4em] text-white/20 text-center" x-text="'Signed in: ' + session.user.email"></p>
+                    <button @click="handleLogout" class="block w-full border border-aura-error/30 text-aura-error py-5 rounded-2xl text-center text-[10px] font-bold uppercase tracking-[0.4em] hover:bg-aura-error hover:text-white transition-all duration-700">Terminate Session</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="relative z-[300]" x-show="cartOpen" x-cloak>
         <div class="fixed inset-0 bg-aura-dark/70 backdrop-blur-2xl transition-opacity duration-1000" 
              x-show="cartOpen" @click="cartOpen = false"
@@ -535,51 +560,48 @@
              x-show="cartOpen" x-transition:enter="translate-x-full" x-transition:enter-end="translate-x-0"
              x-transition:leave="translate-x-0" x-transition:leave-end="translate-x-full">
             
-            <div class="h-full flex flex-col liquid-glass-dark shadow-2xl overflow-hidden relative border-l border-white/5">
+            <div class="h-full flex flex-col glass-dark-refracted shadow-2xl overflow-hidden relative border-l border-white/5">
                 
                 <div class="p-8 md:p-12 flex justify-between items-center border-b border-white/5 bg-white/5">
                     <div>
-                        <h3 class="text-2xl md:text-3xl font-serif font-bold text-white tracking-[0.3em] uppercase">The Selection</h3>
-                        <p class="text-[9px] md:text-[10px] uppercase tracking-[0.5em] text-aura-accent font-bold mt-3" 
+                        <h3 class="text-2xl md:text-3xl font-serif font-bold text-white tracking-[0.3em] uppercase">Your Archive</h3>
+                        <p class="text-[10px] uppercase tracking-[0.5em] text-aura-accent font-bold mt-3" 
                            x-text="cartCount + ' Preserved Artifacts'"></p>
                     </div>
-                    <button @click="cartOpen = false" class="text-white/20 hover:text-aura-error transition-all duration-700 group active:scale-90">
-                        <i class="ph ph-x-circle text-4xl md:text-5xl transform group-hover:rotate-180"></i>
+                    <button @click="cartOpen = false" class="text-white/20 hover:text-aura-error transition-all duration-700 active:scale-90">
+                        <i class="ph ph-x-circle text-4xl md:text-5xl"></i>
                     </button>
                 </div>
 
-                <div class="flex-1 overflow-y-auto p-8 md:p-12 custom-scroll space-y-12 relative">
+                <div class="flex-1 overflow-y-auto p-8 md:p-12 no-scrollbar space-y-12">
                     <div x-show="cartLoading" class="absolute inset-0 bg-aura-dark/60 z-20 flex items-center justify-center backdrop-blur-md">
                         <div class="w-16 h-16 border-4 border-aura-accent border-t-transparent rounded-full animate-spin"></div>
                     </div>
 
-                    <div x-show="cart.length === 0" class="text-center py-40 animate-glass-slide">
-                        <div class="w-24 h-24 md:w-32 md:h-32 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-10 border border-white/5">
-                            <i class="ph ph-tote text-6xl md:text-7xl text-white/10"></i>
-                        </div>
-                        <p class="font-serif italic text-xl md:text-2xl text-white/30 tracking-widest">Bag is currently void.</p>
-                        <button @click="cartOpen = false" class="mt-8 text-[10px] font-bold uppercase tracking-[0.4em] text-aura-accent border-b border-aura-accent/20 pb-1 hover:text-white transition-all">Resume Exploration</button>
+                    <div x-show="cart.length === 0" class="text-center py-48 opacity-20">
+                        <i class="ph ph-tote text-8xl mb-8"></i>
+                        <p class="font-serif italic text-2xl tracking-widest">Bag is void.</p>
                     </div>
                     
                     <ul class="space-y-12 md:space-y-16">
                         <template x-for="(item, index) in cart" :key="index">
                             <li class="flex gap-6 md:gap-10 group animate-glass-slide">
-                                <div class="w-24 h-32 md:w-32 md:h-44 rounded-3xl overflow-hidden border border-white/10 flex-shrink-0 shadow-2xl transition-all duration-700 group-hover:scale-105 group-hover:rotate-1">
+                                <div class="w-24 h-32 md:w-32 md:h-44 rounded-3xl overflow-hidden border border-white/10 flex-shrink-0 shadow-2xl transition-all duration-700 group-hover:scale-105">
                                     <img :src="item.image" class="w-full h-full object-cover">
                                 </div>
-                                <div class="flex-1 flex flex-col justify-between py-1 md:py-2">
+                                <div class="flex-1 flex flex-col justify-between py-2">
                                     <div>
                                         <div class="flex justify-between items-start">
                                             <h4 x-text="item.name" class="font-serif font-bold text-white text-xl md:text-2xl pr-4"></h4>
                                             <p x-text="formatMoney(item.price * item.quantity)" class="text-sm md:text-lg font-bold text-aura-accent"></p>
                                         </div>
-                                        <div class="flex items-center gap-4 md:gap-6 mt-4 md:mt-6">
-                                            <p class="text-[9px] md:text-[10px] text-white/40 font-bold uppercase tracking-[0.4em]">Size <span x-text="item.size" class="text-white ml-2 md:ml-3 bg-white/10 px-3 py-1 rounded-full"></span></p>
-                                            <p class="text-[9px] md:text-[10px] text-white/40 font-bold uppercase tracking-[0.4em]">Qty <span x-text="item.quantity" class="text-white ml-2 md:ml-3 bg-white/10 px-3 py-1 rounded-full"></span></p>
+                                        <div class="flex items-center gap-4 md:gap-6 mt-6">
+                                            <p class="text-[9px] text-white/40 font-bold uppercase tracking-[0.4em]">Size <span x-text="item.size" class="text-white ml-2 bg-white/10 px-3 py-1 rounded-full"></span></p>
+                                            <p class="text-[9px] text-white/40 font-bold uppercase tracking-[0.4em]">Qty <span x-text="item.quantity" class="text-white ml-2 bg-white/10 px-3 py-1 rounded-full"></span></p>
                                         </div>
                                     </div>
                                     <button @click="removeFromCart(index, item)" 
-                                            class="text-aura-error/60 text-[9px] md:text-[10px] font-bold uppercase tracking-[0.4em] hover:text-aura-error transition-all text-left underline underline-offset-8">Void Selection</button>
+                                            class="text-aura-error/60 text-[10px] font-bold uppercase tracking-[0.4em] hover:text-aura-error transition-all text-left underline underline-offset-8">Void Selection</button>
                                 </div>
                             </li>
                         </template>
@@ -587,17 +609,13 @@
                 </div>
 
                 <div class="p-8 md:p-12 bg-white/5 border-t border-white/5 shadow-[0_-30px_60px_rgba(0,0,0,0.3)]">
-                    <div class="flex justify-between items-end mb-10 md:mb-12">
-                        <div class="space-y-2 md:space-y-3">
-                            <p class="text-[10px] md:text-[11px] font-bold uppercase text-white/30 tracking-[0.5em] md:tracking-[0.6em]">Estimated Settlement</p>
+                    <div class="flex justify-between items-end mb-12">
+                        <div class="space-y-3">
+                            <p class="text-[11px] font-bold uppercase text-white/30 tracking-[0.6em]">Settlement Balance</p>
                             <h4 class="text-4xl md:text-5xl font-serif font-bold text-white text-glow-accent" x-text="formatMoney(cartTotal)"></h4>
                         </div>
-                        <div class="text-right">
-                            <p class="text-[10px] md:text-[11px] font-bold text-aura-success uppercase tracking-[0.3em]">Direct Logistics Inc.</p>
-                        </div>
                     </div>
-                    
-                    <a href="checkout.html" class="block w-full bg-aura-accent text-aura-dark py-6 md:py-8 rounded-[1.5rem] md:rounded-[2rem] text-center text-[10px] md:text-xs font-bold uppercase tracking-[0.5em] md:tracking-[0.6em] hover:bg-white transition-all duration-1000 shadow-2xl active:scale-[0.97] btn-refract">
+                    <a href="checkout.html" class="block w-full bg-aura-accent text-aura-dark py-6 md:py-8 rounded-[1.5rem] md:rounded-[2rem] text-center text-xs font-bold uppercase tracking-[0.5em] hover:bg-white transition-all duration-1000 shadow-2xl active:scale-[0.97]">
                         Authorize Payment
                     </a>
                 </div>
@@ -605,119 +623,70 @@
         </div>
     </div>
 
-
-    <div x-show="mobileMenuOpen" class="fixed inset-0 z-[250] lg:hidden" x-cloak>
-        <div class="absolute inset-0 bg-aura-dark/80 backdrop-blur-2xl transition-opacity" @click="mobileMenuOpen = false"></div>
-        
-        <div class="relative w-[85%] h-full liquid-glass-dark p-10 md:p-14 flex flex-col transform transition-transform duration-700"
-             x-transition:enter="translate-x-[-100%]" x-transition:enter-end="translate-x-0"
-             x-transition:leave="translate-x-0" x-transition:leave-end="translate-x-[-100%]">
-            
-            <div class="flex justify-between items-center mb-20 md:mb-24">
-                <span class="text-2xl font-serif font-bold tracking-[0.4em] text-white">AURA.</span>
-                <button @click="mobileMenuOpen = false" class="text-white/40 active:scale-90"><i class="ph ph-x text-4xl"></i></button>
-            </div>
-
-            <nav class="flex-1 flex flex-col gap-10 md:gap-12 text-4xl md:text-5xl font-serif text-white/50">
-                <a href="#shop" @click="mobileMenuOpen = false" class="block hover:text-aura-accent transition-all duration-500">The Archive</a>
-                <a href="catalog.html" class="block hover:text-aura-accent transition-all duration-500">Catalog 2.0</a>
-                
-                <div x-show="session" class="space-y-10 md:space-y-12 border-t border-white/5 pt-10 md:pt-12">
-                    <a href="profile.html" class="block text-aura-accent italic">My Dossier</a>
-                    <template x-if="isAdmin">
-                        <a href="admin.html" class="block text-sm font-sans font-bold uppercase tracking-[0.4em] bg-aura-accent text-aura-dark p-6 rounded-2xl text-center shadow-2xl">Master Console</a>
-                    </template>
-                </div>
-            </nav>
-
-            <div class="mt-auto pt-10 border-t border-white/5">
-                <template x-if="!session">
-                    <a href="loginpage.html" class="block w-full bg-white text-aura-dark py-5 rounded-2xl text-center text-xs font-bold uppercase tracking-[0.4em] shadow-xl">Identify</a>
-                </template>
-                <div x-show="session" class="flex flex-col gap-6">
-                    <p class="text-[9px] uppercase tracking-[0.5em] text-white/20 text-center" x-text="'Signed in as ' + session.user.email"></p>
-                    <button @click="logout" class="block w-full border border-aura-error/30 text-aura-error py-5 rounded-2xl text-center text-[10px] font-bold uppercase tracking-[0.4em] hover:bg-aura-error hover:text-white transition-all duration-700">Terminate</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
     <footer class="bg-white pt-40 md:pt-60 pb-16 md:pb-24 relative overflow-hidden border-t border-aura-dark/5">
         <div class="absolute bottom-0 right-0 w-128 h-128 bg-aura-accent/10 rounded-full blur-[160px] -z-10"></div>
         
         <div class="container mx-auto px-6">
-            <div class="grid grid-cols-1 lg:grid-cols-6 gap-20 md:gap-32 mb-32 md:mb-40">
+            <div class="grid grid-cols-1 lg:grid-cols-6 gap-20 md:gap-32 mb-32">
                 
-                <div class="lg:col-span-2 space-y-12 md:space-y-16">
+                <div class="lg:col-span-2 space-y-12">
                     <div>
-                        <a href="#" class="text-4xl md:text-5xl font-serif font-bold tracking-[0.4em] uppercase text-aura-dark block mb-10 transition-all hover:tracking-[0.5em]">AURA<span class="text-aura-accent">.</span></a>
-                        <p class="text-gray-400 text-base md:text-lg leading-relaxed max-w-sm font-light">
-                            Synthesizing a sustainable future through the intersection of Indonesian heritage and high-performance digital logic. Every thread is a signature.
-                        </p>
+                        <a href="#" class="text-4xl md:text-5xl font-serif font-bold tracking-[0.4em] uppercase text-aura-dark block mb-8">AURA<span class="text-aura-accent">.</span></a>
+                        <p class="text-gray-400 text-lg leading-relaxed max-w-sm font-light">Synthesizing a sustainable future through Indonesian heritage and digital logic.</p>
                     </div>
-                    
-                    <div class="flex gap-8 md:gap-10">
+                    <div class="flex gap-8">
                         <template x-for="icon in ['instagram-logo', 'tiktok-logo', 'pinterest-logo']">
-                            <a href="#" class="w-14 h-14 md:w-16 md:h-16 rounded-full glass-refracted flex items-center justify-center hover:bg-aura-dark hover:text-white transition-all duration-1000 transform hover:-translate-y-3">
+                            <a href="#" class="w-14 h-14 rounded-full glass-refracted flex items-center justify-center hover:bg-aura-dark hover:text-white transition-all duration-1000 transform hover:-translate-y-3">
                                 <i :class="'ph-fill ph-' + icon" class="text-2xl md:text-3xl"></i>
                             </a>
                         </template>
                     </div>
                 </div>
 
-                <div class="space-y-10 md:space-y-12">
+                <div class="space-y-10">
                     <h5 class="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.6em] text-aura-accent">Discovery</h5>
-                    <ul class="space-y-6 md:space-y-8 text-xs md:text-sm text-gray-400 font-bold tracking-[0.3em] uppercase">
-                        <li><a href="#shop" class="hover:text-aura-dark transition-all duration-500">Current Archive</a></li>
-                        <li><a href="catalog.html" class="hover:text-aura-dark transition-all duration-500">Global Catalog</a></li>
-                        <li><a href="#" class="hover:text-aura-dark transition-all duration-500">Gift Protocol</a></li>
+                    <ul class="space-y-6 text-sm text-gray-400 font-bold tracking-[0.3em] uppercase">
+                        <li><a href="#shop" class="hover:text-aura-dark transition-all">Archive</a></li>
+                        <li><a href="catalog.html" class="hover:text-aura-dark transition-all">Global Catalog</a></li>
                     </ul>
                 </div>
 
-                <div class="space-y-10 md:space-y-12">
-                    <h5 class="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.6em] text-aura-accent">The Firm</h5>
-                    <ul class="space-y-6 md:space-y-8 text-xs md:text-sm text-gray-400 font-bold tracking-[0.3em] uppercase">
-                        <li><a href="#story" class="hover:text-aura-dark transition-all duration-500">Artisan Legacy</a></li>
-                        <li><a href="#" class="hover:text-aura-dark transition-all duration-500">Impact Dossier</a></li>
-                        <li><a href="#" class="hover:text-aura-dark transition-all duration-500">Transparency</a></li>
+                <div class="space-y-10">
+                    <h5 class="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.6em] text-aura-accent">Firm</h5>
+                    <ul class="space-y-6 text-sm text-gray-400 font-bold tracking-[0.3em] uppercase">
+                        <li><a href="#story" class="hover:text-aura-dark transition-all">Artisans</a></li>
+                        <li><a href="#" class="hover:text-aura-dark transition-all">Impact</a></li>
                     </ul>
                 </div>
 
-                <div class="lg:col-span-2 space-y-10 md:space-y-12">
+                <div class="lg:col-span-2 space-y-10">
                     <h5 class="text-[10px] md:text-[11px] font-bold uppercase tracking-[0.6em] text-aura-accent">Intake Portal</h5>
-                    <p class="text-xs md:text-sm text-gray-400 leading-relaxed font-light uppercase tracking-widest">Subscribe to receive technical bulletins on new drops and heritage preservation reports.</p>
+                    <p class="text-sm text-gray-400 font-light tracking-widest">Subscribe for technical bulletins on new drops.</p>
                     <div class="relative group">
                         <input type="email" placeholder="IDENTITY@EMAIL.COM" 
                                class="bg-transparent border-b-2 border-gray-100 py-6 w-full text-xs outline-none focus:border-aura-dark transition-all duration-1000 font-bold tracking-[0.4em]">
-                        <button class="absolute right-0 top-1/2 -translate-y-1/2 text-aura-accent hover:text-aura-dark transition-all duration-500 font-bold uppercase text-[10px] tracking-[0.4em]">Authorize</button>
+                        <button class="absolute right-0 top-1/2 -translate-y-1/2 text-aura-accent hover:text-aura-dark transition-all font-bold uppercase text-[10px] tracking-[0.4em]">Auth</button>
                     </div>
                 </div>
             </div>
 
-            <div class="pt-16 md:pt-20 border-t border-gray-100 flex flex-col lg:flex-row justify-between items-center text-[10px] uppercase tracking-[0.6em] text-gray-300 gap-10 md:gap-12">
-                <div class="flex flex-col md:flex-row gap-8 md:gap-16 items-center">
-                    <p>&copy; 2026 Aura Apparel Global Systems.</p>
-                    <div class="hidden md:block h-5 w-px bg-gray-200"></div>
-                    <p>Designed and Handcrafted in Java, Indonesia.</p>
-                </div>
+            <div class="pt-16 border-t border-gray-100 flex flex-col lg:flex-row justify-between items-center text-[10px] uppercase tracking-[0.6em] text-gray-300 gap-10">
+                <p>&copy; 2026 Aura Apparel Global Systems. Managed in Java, ID.</p>
                 <div class="flex gap-10 md:gap-14">
-                    <a href="#" class="hover:text-aura-dark transition-all">Privacy Protocol</a>
-                    <a href="#" class="hover:text-aura-dark transition-all">Terms of Use</a>
+                    <a href="#" class="hover:text-aura-dark transition-all">Privacy</a>
+                    <a href="#" class="hover:text-aura-dark transition-all">Terms</a>
                 </div>
             </div>
         </div>
     </footer>
 
-
     <script>
         function auraTitan() {
             return {
-                /* --- I. SYSTEM INFRASTRUCTURE --- */
+                /* --- I. SYSTEM STATES --- */
                 supabase: null,
                 session: null,
                 isAdmin: false,
-                
                 scrolled: false,
                 mobileMenuOpen: false,
                 cartOpen: false,
@@ -725,91 +694,71 @@
                 productsLoading: true,
                 archiveExpanded: false,
                 
-                /* --- II. DATA MANIFEST --- */
+                /* --- II. DATA REPOSITORIES --- */
                 products: [],
                 activeCategory: 'All',
                 cart: [],
                 toasts: [],
 
                 /* --- III. COMPUTED INTELLIGENCE --- */
-                /** Returns total fiscal value of items in bag */
                 get cartTotal() { 
                     return this.cart.reduce((total, item) => total + (item.price * item.quantity), 0); 
                 },
-                /** Returns total unit count of artifacts */
                 get cartCount() { 
                     return this.cart.reduce((total, item) => total + item.quantity, 0); 
                 },
-                /** Reactive inventory filtering based on category and expansion state */
                 get filteredProducts() {
                     let base = this.activeCategory === 'All' 
                         ? this.products 
                         : this.products.filter(p => p.category === this.activeCategory);
-                    
                     return this.archiveExpanded ? base : base.slice(0, 8);
                 },
 
                 /* --- IV. BOOT SEQUENCE --- */
-                /** Main initialization on page ready */
                 init() {
-                    // Optimized Scroll Management
-                    window.addEventListener('scroll', () => { 
-                        this.scrolled = window.scrollY > 80; 
-                    });
+                    window.addEventListener('scroll', () => { this.scrolled = window.scrollY > 80; });
                     
-                    this.establishSecureConnection();
+                    // Safety timeout for CDN availability
+                    setTimeout(() => {
+                        this.establishSecureConnection();
+                    }, 100);
                 },
 
-                /** Establishes cloud connection and triggers data hydration */
                 async establishSecureConnection() {
                     const SB_URL = 'https://xenosyklkpisszqwibdw.supabase.co';
                     const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhlbm9zeWtsa3Bpc3N6cXdpYmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4NTkxNzcsImV4cCI6MjA4NjQzNTE3N30.A_WVC9GRa7USe2DPbzVUWw3TuBHnyImVqBZnzuPJbMw';
                     
-                    this.supabase = supabase.createClient(SB_URL, SB_KEY);
-                    
-                    // Concurrent loading for performance optimization
-                    await Promise.all([
-                        this.syncGlobalInventory(),
-                        this.initializeSecurityContext()
-                    ]);
+                    try {
+                        this.supabase = window.supabase.createClient(SB_URL, SB_KEY);
+                        await Promise.all([this.syncGlobalInventory(), this.initializeSecurityContext()]);
+                    } catch (e) {
+                        this.showToast('Terminal Error', 'Gateway connection failed.', 'error');
+                    }
                 },
 
-                /* --- V. DATABASE & SECURITY ARCHITECTURE --- */
-                /** Fetches latest artifacts from the secure Supabase cluster */
+                /* --- V. CORE DATABASE LOGIC --- */
                 async syncGlobalInventory() {
                     this.productsLoading = true;
                     try {
-                        const { data, error } = await this.supabase
-                            .from('products')
-                            .select('*')
-                            .order('created_at', { ascending: false });
-                        
+                        const { data, error } = await this.supabase.from('products').select('*').order('created_at', { ascending: false });
                         if (error) throw error;
                         this.products = data || [];
                     } catch (err) {
-                        console.error('Titan Inventory Error:', err);
-                        this.showToast('System Error', 'Database synchronization failed.', 'error');
+                        this.showToast('System Notice', 'Inventory offline.', 'error');
                     } finally {
                         this.productsLoading = false;
                     }
                 },
 
-                /** Establishes session listeners for real-time auth changes */
                 async initializeSecurityContext() {
                     const { data: { session } } = await this.supabase.auth.getSession();
                     this.processIdentityGateway(session);
-                    
-                    this.supabase.auth.onAuthStateChange((_, s) => {
-                        this.processIdentityGateway(s);
-                    });
+                    this.supabase.auth.onAuthStateChange((_, s) => { this.processIdentityGateway(s); });
                 },
 
-                /** Routes state based on user identity and privileges */
                 async processIdentityGateway(session) {
                     this.session = session;
-                    // Strict Admin Verification Logic
                     this.isAdmin = session && session.user.email === 'dashwebtr3@gmail.com';
-                    
                     if (session) {
                         await this.mergeLocalToCloud();
                         await this.fetchCloudManifest();
@@ -818,8 +767,7 @@
                     }
                 },
 
-                /* --- VI. COMMERCE TRANSACTION ENGINE --- */
-                /** Universal entry point for adding items to Bag */
+                /* --- VI. COMMERCE ENGINE --- */
                 async addToCart(product, size) {
                     this.cartOpen = true;
                     if (!this.session) {
@@ -829,7 +777,6 @@
                     }
                 },
 
-                /** Logic for unauthenticated users (Local Storage) */
                 processGuestAddition(product, size) {
                     const exists = this.cart.find(i => i.id === product.id && i.size === size);
                     if (exists) {
@@ -838,57 +785,44 @@
                         this.cart.push({...JSON.parse(JSON.stringify(product)), size, quantity: 1});
                     }
                     this.persistLocalArchive();
-                    this.showToast('Selection Preserved', `${product.name} added to guest bag.`);
+                    this.showToast('Bag Synchronized', `${product.name} preserved.`);
                 },
 
-                /** Logic for authenticated users (Supabase Sync) */
                 async processCloudAddition(product, size) {
                     this.cartLoading = true;
                     try {
                         const exists = this.cart.find(i => i.id === product.id && i.size === size);
                         const qty = exists ? exists.quantity + 1 : 1;
-
-                        const { error } = await this.supabase
-                            .from('cart_items')
-                            .upsert({
-                                user_id: this.session.user.id,
-                                product_id: product.id,
-                                size: size,
-                                quantity: qty
-                            }, { onConflict: 'user_id, product_id, size' });
-
+                        const { error } = await this.supabase.from('cart_items').upsert({
+                            user_id: this.session.user.id, product_id: product.id, size: size, quantity: qty
+                        }, { onConflict: 'user_id, product_id, size' });
                         if (error) throw error;
                         await this.fetchCloudManifest();
-                        this.showToast('Cloud Sync Success', `${product.name} saved to secure profile.`);
+                        this.showToast('Cloud Sync Success', `${product.name} saved.`);
                     } catch (e) {
-                        this.showToast('Sync Failure', 'Database write rejected.', 'error');
+                        this.showToast('Sync Failure', 'Database rejected write.', 'error');
                     } finally {
                         this.cartLoading = false;
                     }
                 },
 
-                /** Hydrates local state from database keys */
                 async fetchCloudManifest() {
                     const { data, error } = await this.supabase.from('cart_items').select('*');
                     if (error) return;
-
                     this.cart = data.map(dbItem => {
                         const meta = this.products.find(p => p.id === dbItem.product_id);
                         return meta ? {...meta, size: dbItem.size, quantity: dbItem.quantity} : null;
                     }).filter(Boolean);
                 },
 
-                /** Transfers local bag items to cloud database after login */
                 async mergeLocalToCloud() {
-                    const data = JSON.parse(localStorage.getItem('aura_titan_v6') || '[]');
+                    const data = JSON.parse(localStorage.getItem('aura_titan_v7') || '[]');
                     if (data.length > 0) {
-                        this.showToast('Archive Integration', 'Merging guest selections...');
                         for(const item of data) await this.processCloudAddition(item, item.size);
-                        localStorage.removeItem('aura_titan_v6');
+                        localStorage.removeItem('aura_titan_v7');
                     }
                 },
 
-                /** Removes item and updates corresponding storage engine */
                 async removeFromCart(idx, item) {
                     this.cartLoading = true;
                     if(!this.session) {
@@ -904,43 +838,41 @@
                 },
 
                 /* --- VII. SYSTEM UTILITIES --- */
-                persistLocalArchive() { localStorage.setItem('aura_titan_v6', JSON.stringify(this.cart)); },
-                loadLocalArchive() { this.cart = JSON.parse(localStorage.getItem('aura_titan_v6') || '[]'); },
-                
+                persistLocalArchive() { localStorage.setItem('aura_titan_v7', JSON.stringify(this.cart)); },
+                loadLocalArchive() { this.cart = JSON.parse(localStorage.getItem('aura_titan_v7') || '[]'); },
                 toggleArchive() { 
                     this.archiveExpanded = !this.archiveExpanded; 
                     if(!this.archiveExpanded) document.getElementById('shop').scrollIntoView({ behavior: 'smooth' }); 
                 },
-
-                async logout() { 
+                
+                async handleLogout() { 
                     await this.supabase.auth.signOut(); 
                     this.cart = []; 
                     this.isAdmin = false;
-                    this.showToast('Session Terminated', 'Security protocols active.');
+                    this.session = null;
+                    this.showToast('Secure Exit', 'Identity cleared.');
+                    setTimeout(() => { window.location.reload(); }, 800);
                 },
                 
                 formatMoney(v) { 
-                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumSignificantDigits: 9 }).format(v); 
+                    return new Intl.NumberFormat('id-ID', { 
+                        style: 'currency', 
+                        currency: 'IDR', 
+                        minimumFractionDigits: 0 
+                    }).format(v); 
                 },
 
-                showToast(title, message) {
+                showToast(title, message, type = 'success') {
                     const id = Date.now();
-                    this.toasts.push({ id, title, message, visible: true });
+                    this.toasts.push({ id, title, message, type, visible: true });
                     setTimeout(() => {
                         const t = this.toasts.find(x => x.id === id);
                         if(t) t.visible = false;
                         setTimeout(() => { this.toasts = this.toasts.filter(x => x.id !== id); }, 600);
-                    }, 4000);
+                    }, 3000);
                 },
 
-                removeToast(id) {
-                    this.toasts = this.toasts.filter(x => x.id !== id);
-                },
-
-                scrollToAbout() {
-                    const el = document.getElementById('story');
-                    if(el) el.scrollIntoView({ behavior: 'smooth' });
-                }
+                scrollToAbout() { document.getElementById('story').scrollIntoView({ behavior: 'smooth' }); }
             }
         }
     </script>
