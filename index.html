@@ -72,6 +72,7 @@
             position: relative; 
             background: #FBFBF9;
             -webkit-tap-highlight-color: transparent;
+            scroll-behavior: smooth;
         }
 
         /* LIQUID GLASS REFRACTION */
@@ -90,7 +91,7 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* BIOLOGICAL BACKGROUND BLOBS */
+        /* BACKGROUND BLOBS */
         .canvas-blob {
             position: absolute;
             width: 300px; height: 300px;
@@ -107,23 +108,13 @@
         }
 
         /* CUSTOM UTILITIES */
-        .luxury-glow {
-            text-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-        }
+        .luxury-glow { text-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
+        .text-glow-accent { text-shadow: 0 0 15px rgba(212, 175, 55, 0.5); }
+        .vertical-text { writing-mode: vertical-rl; text-orientation: mixed; }
 
-        .text-glow-accent {
-            text-shadow: 0 0 15px rgba(212, 175, 55, 0.5);
-        }
-
-        .vertical-text {
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-        }
-
-        /* CUSTOM SCROLLBAR */
+        /* SCROLLBAR */
         ::-webkit-scrollbar { width: 5px; }
         ::-webkit-scrollbar-thumb { background: #0A1A17; border-radius: 10px; }
-        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -149,6 +140,12 @@
             padding-bottom: 0.75rem !important;
             box-shadow: 0 10px 40px rgba(0,0,0,0.05);
         }
+
+        .shimmer-bg {
+            background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite linear;
+        }
     </style>
 </head>
 
@@ -160,7 +157,7 @@
         <div class="canvas-blob bg-pink-100 top-[40%] left-[25%] animate-blob" style="animation-delay: 8s;"></div>
     </div>
 
-    <div class="fixed top-8 right-6 z-[300] flex flex-col gap-4 pointer-events-none">
+    <div class="fixed top-8 right-6 z-[400] flex flex-col gap-4 pointer-events-none">
         <template x-for="toast in toasts" :key="toast.id">
             <div x-show="toast.visible" 
                  x-transition:enter="transition ease-out duration-600 transform"
@@ -287,8 +284,8 @@
                     </div>
                     
                     <div class="absolute -top-10 -right-8 glass-dark-refracted p-8 md:p-12 rounded-3xl shadow-2xl animate-float hidden md:block" style="animation-delay: 1s;">
-                        <div class="flex items-center gap-6 text-white">
-                            <i class="ph-fill ph-fingerprint text-4xl text-aura-accent"></i>
+                        <div class="flex items-center gap-6 text-white group/trace">
+                            <i class="ph-fill ph-fingerprint text-4xl text-aura-accent group-hover/trace:scale-125 transition-transform duration-500"></i>
                             <div>
                                 <p class="text-2xl font-serif font-bold text-aura-accent leading-none mb-1">Traceable</p>
                                 <p class="text-[9px] uppercase tracking-widest opacity-40">Origin Security</p>
@@ -368,9 +365,9 @@
 
             <div x-show="productsLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 md:gap-16">
                 <template x-for="i in 4">
-                    <div class="glass-refracted p-5 md:p-6 rounded-[3.5rem] space-y-10 animate-pulse">
-                        <div class="aspect-[3/4] rounded-[2.5rem] bg-gray-100/50"></div>
-                        <div class="h-8 bg-gray-100/50 w-3/4 mx-auto rounded-lg"></div>
+                    <div class="glass-refracted p-5 md:p-6 rounded-[3.5rem] space-y-10">
+                        <div class="aspect-[3/4] rounded-[2.5rem] shimmer-bg"></div>
+                        <div class="h-8 shimmer-bg w-3/4 mx-auto rounded-lg"></div>
                     </div>
                 </template>
             </div>
@@ -514,33 +511,34 @@
         </div>
     </section>
 
-    <div x-show="mobileMenuOpen" class="fixed inset-0 z-[250] lg:hidden" x-cloak>
+    <div x-show="mobileMenuOpen" class="fixed inset-0 z-[500] lg:hidden" x-cloak>
         <div class="absolute inset-0 bg-aura-dark/80 backdrop-blur-2xl transition-opacity duration-700" @click="mobileMenuOpen = false"></div>
         
         <div class="relative w-[85%] h-full glass-dark-refracted p-10 md:p-14 flex flex-col transform transition-transform duration-700"
              x-transition:enter="translate-x-[-100%]" x-transition:enter-end="translate-x-0"
-             x-transition:leave="translate-x-0" x-transition:leave-end="translate-x-[-100%]">
+             x-transition:leave="translate-x-0" x-transition:leave-end="translate-x-[-100%]"
+             @click.away="mobileMenuOpen = false">
             
             <div class="flex justify-between items-center mb-20 md:mb-24">
                 <span class="text-2xl font-serif font-bold tracking-[0.4em] text-white">AURA.</span>
-                <button @click="mobileMenuOpen = false" class="text-white/40 active:scale-90"><i class="ph ph-x text-4xl"></i></button>
+                <button @click="mobileMenuOpen = false" class="text-white/40 active:scale-90 p-2"><i class="ph ph-x text-4xl"></i></button>
             </div>
 
             <nav class="flex-1 flex flex-col gap-10 md:gap-12 text-4xl md:text-5xl font-serif text-white/50">
                 <a href="#shop" @click="mobileMenuOpen = false" class="block hover:text-aura-accent transition duration-500">Collection</a>
-                <a href="catalog.html" class="block hover:text-aura-accent transition duration-500">Catalog</a>
+                <a href="catalog.html" @click="mobileMenuOpen = false" class="block hover:text-aura-accent transition duration-500">Catalog</a>
                 
                 <div x-show="session" class="space-y-10 border-t border-white/5 pt-10">
-                    <a href="profile.html" class="block text-aura-accent italic">My Orders</a>
+                    <a href="profile.html" @click="mobileMenuOpen = false" class="block text-aura-accent italic">My Orders</a>
                     <template x-if="isAdmin">
-                        <a href="admin.html" class="block text-sm font-sans font-bold uppercase tracking-[0.4em] bg-aura-accent text-aura-dark p-6 rounded-2xl text-center shadow-2xl">Vault Access</a>
+                        <a href="admin.html" @click="mobileMenuOpen = false" class="block text-sm font-sans font-bold uppercase tracking-[0.4em] bg-aura-accent text-aura-dark p-6 rounded-2xl text-center shadow-2xl">Vault Access</a>
                     </template>
                 </div>
             </nav>
 
             <div class="mt-auto pt-10 border-t border-white/5">
                 <template x-if="!session">
-                    <a href="loginpage.html" class="block w-full bg-white text-aura-dark py-5 rounded-2xl text-center text-[10px] font-bold uppercase tracking-[0.4em]">Identify Identity</a>
+                    <a href="loginpage.html" @click="mobileMenuOpen = false" class="block w-full bg-white text-aura-dark py-5 rounded-2xl text-center text-[10px] font-bold uppercase tracking-[0.4em]">Identify Identity</a>
                 </template>
                 <div x-show="session" class="flex flex-col gap-6">
                     <p class="text-[9px] uppercase tracking-[0.4em] text-white/20 text-center" x-text="'Signed in: ' + session.user.email"></p>
@@ -550,7 +548,7 @@
         </div>
     </div>
 
-    <div class="relative z-[300]" x-show="cartOpen" x-cloak>
+    <div class="relative z-[500]" x-show="cartOpen" x-cloak>
         <div class="fixed inset-0 bg-aura-dark/70 backdrop-blur-2xl transition-opacity duration-1000" 
              x-show="cartOpen" @click="cartOpen = false"
              x-transition:enter="ease-out duration-700" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
@@ -558,7 +556,8 @@
 
         <div class="fixed inset-y-0 right-0 w-full md:max-w-xl flex flex-col transform transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]"
              x-show="cartOpen" x-transition:enter="translate-x-full" x-transition:enter-end="translate-x-0"
-             x-transition:leave="translate-x-0" x-transition:leave-end="translate-x-full">
+             x-transition:leave="translate-x-0" x-transition:leave-end="translate-x-full"
+             @click.away="cartOpen = false">
             
             <div class="h-full flex flex-col glass-dark-refracted shadow-2xl overflow-hidden relative border-l border-white/5">
                 
@@ -716,9 +715,11 @@
 
                 /* --- IV. BOOT SEQUENCE --- */
                 init() {
-                    window.addEventListener('scroll', () => { this.scrolled = window.scrollY > 80; });
+                    window.addEventListener('scroll', () => { 
+                        this.scrolled = window.scrollY > 80; 
+                    }, { passive: true });
                     
-                    // Safety timeout for CDN availability
+                    // Supabase Handshake
                     setTimeout(() => {
                         this.establishSecureConnection();
                     }, 100);
@@ -730,7 +731,8 @@
                     
                     try {
                         this.supabase = window.supabase.createClient(SB_URL, SB_KEY);
-                        await Promise.all([this.syncGlobalInventory(), this.initializeSecurityContext()]);
+                        await this.syncGlobalInventory();
+                        await this.initializeSecurityContext();
                     } catch (e) {
                         this.showToast('Terminal Error', 'Gateway connection failed.', 'error');
                     }
@@ -767,7 +769,7 @@
                     }
                 },
 
-                /* --- VI. COMMERCE ENGINE --- */
+                /* --- VI. COMMERCE ENGINE (HARDENED) --- */
                 async addToCart(product, size) {
                     this.cartOpen = true;
                     if (!this.session) {
@@ -793,13 +795,19 @@
                     try {
                         const exists = this.cart.find(i => i.id === product.id && i.size === size);
                         const qty = exists ? exists.quantity + 1 : 1;
+                        
                         const { error } = await this.supabase.from('cart_items').upsert({
-                            user_id: this.session.user.id, product_id: product.id, size: size, quantity: qty
+                            user_id: this.session.user.id, 
+                            product_id: product.id, 
+                            size: size, 
+                            quantity: qty
                         }, { onConflict: 'user_id, product_id, size' });
+                        
                         if (error) throw error;
                         await this.fetchCloudManifest();
                         this.showToast('Cloud Sync Success', `${product.name} saved.`);
                     } catch (e) {
+                        console.error('Cloud Sync Error:', e);
                         this.showToast('Sync Failure', 'Database rejected write.', 'error');
                     } finally {
                         this.cartLoading = false;
@@ -807,34 +815,55 @@
                 },
 
                 async fetchCloudManifest() {
-                    const { data, error } = await this.supabase.from('cart_items').select('*');
-                    if (error) return;
-                    this.cart = data.map(dbItem => {
-                        const meta = this.products.find(p => p.id === dbItem.product_id);
-                        return meta ? {...meta, size: dbItem.size, quantity: dbItem.quantity} : null;
-                    }).filter(Boolean);
+                    try {
+                        const { data, error } = await this.supabase.from('cart_items').select('*');
+                        if (error) throw error;
+                        
+                        this.cart = data.map(dbItem => {
+                            const meta = this.products.find(p => p.id === dbItem.product_id);
+                            return meta ? {...meta, size: dbItem.size, quantity: dbItem.quantity} : null;
+                        }).filter(Boolean);
+                    } catch (e) {
+                        console.error('Fetch Error:', e);
+                    }
                 },
 
                 async mergeLocalToCloud() {
                     const data = JSON.parse(localStorage.getItem('aura_titan_v7') || '[]');
                     if (data.length > 0) {
-                        for(const item of data) await this.processCloudAddition(item, item.size);
+                        for(const item of data) {
+                            try {
+                                await this.processCloudAddition(item, item.size);
+                            } catch (err) {
+                                console.warn('Failed to merge item:', item.name);
+                            }
+                        }
                         localStorage.removeItem('aura_titan_v7');
+                        this.showToast('Identity Merged', 'Local bag moved to account.');
                     }
                 },
 
                 async removeFromCart(idx, item) {
                     this.cartLoading = true;
-                    if(!this.session) {
-                        this.cart.splice(idx, 1);
-                        this.persistLocalArchive();
-                    } else {
-                        await this.supabase.from('cart_items').delete().match({
-                            user_id: this.session.user.id, product_id: item.id, size: item.size
-                        });
-                        this.cart.splice(idx, 1);
+                    try {
+                        if(!this.session) {
+                            this.cart.splice(idx, 1);
+                            this.persistLocalArchive();
+                        } else {
+                            const { error } = await this.supabase.from('cart_items').delete().match({
+                                user_id: this.session.user.id, 
+                                product_id: item.id, 
+                                size: item.size
+                            });
+                            if (error) throw error;
+                            this.cart.splice(idx, 1);
+                        }
+                        this.showToast('Artifact Voided', 'Item removed from bag.');
+                    } catch (e) {
+                        this.showToast('Operation Failed', 'Could not remove item.', 'error');
+                    } finally {
+                        this.cartLoading = false;
                     }
-                    this.cartLoading = false;
                 },
 
                 /* --- VII. SYSTEM UTILITIES --- */
@@ -850,6 +879,7 @@
                     this.cart = []; 
                     this.isAdmin = false;
                     this.session = null;
+                    localStorage.removeItem('aura_titan_v7');
                     this.showToast('Secure Exit', 'Identity cleared.');
                     setTimeout(() => { window.location.reload(); }, 800);
                 },
