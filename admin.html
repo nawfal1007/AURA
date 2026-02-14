@@ -36,24 +36,26 @@
     </script>
     
     <style>
+        /* Hides elements until Alpine is ready (prevents ugly flickering) */
         [x-cloak] { display: none !important; }
+        
         /* Custom Scrollbar for tables */
         .custom-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
         .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #999; }
         
-        /* Animation */
+        /* Smooth Animations */
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans h-screen overflow-hidden" x-data="adminApp()">
 
-    <div x-show="loading" class="fixed inset-0 z-[60] bg-aura-dark flex items-center justify-center text-white">
+    <div x-show="loading" class="fixed inset-0 z-[60] bg-aura-dark flex items-center justify-center text-white transition-opacity duration-300">
         <div class="flex flex-col items-center">
             <div class="w-12 h-12 border-4 border-aura-accent border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p class="text-xs uppercase tracking-widest font-bold">Verifying Admin Access...</p>
+            <p class="text-xs uppercase tracking-widest font-bold">Connecting to System...</p>
         </div>
     </div>
 
@@ -92,9 +94,9 @@
                         :class="currentView === 'orders' ? 'bg-white/10 text-white border-l-2 border-aura-accent' : 'text-white/60 hover:bg-white/5 hover:text-white'"
                         class="w-full flex items-center gap-3 px-4 py-3 rounded-r text-sm font-bold transition-all text-left">
                     <i class="ph ph-receipt text-lg"></i> Orders
-                    <span x-show="orders.filter(o => o.status === 'complaint').length > 0" 
-                          class="ml-auto w-5 h-5 bg-aura-error text-white rounded-full text-[10px] flex items-center justify-center"
-                          x-text="orders.filter(o => o.status === 'complaint').length"></span>
+                    <span x-show="countComplaints() > 0" 
+                          class="ml-auto w-5 h-5 bg-aura-error text-white rounded-full text-[10px] flex items-center justify-center font-bold animate-pulse"
+                          x-text="countComplaints()"></span>
                 </button>
 
                 <p class="px-4 text-[10px] uppercase tracking-widest text-white/40 font-bold mb-2 mt-8">System</p>
@@ -210,20 +212,20 @@
                         <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex items-center justify-between">
                             <div>
                                 <p class="text-xs font-bold uppercase text-gray-400">Revenue</p>
-                                <p class="text-2xl font-bold text-green-600" x-text="formatMoney(orders.filter(o => o.status !== 'pending' && o.status !== 'cancelled' && o.status !== 'complaint').reduce((sum, o) => sum + o.total_price, 0))"></p>
+                                <p class="text-2xl font-bold text-green-600" x-text="formatMoney(orders.filter(o => !['pending','cancelled','complaint'].includes(o.status)).reduce((sum, o) => sum + o.total_price, 0))"></p>
                             </div>
                             <div class="w-10 h-10 bg-green-50 text-green-600 rounded-full flex items-center justify-center"><i class="ph-fill ph-currency-dollar text-xl"></i></div>
                         </div>
-                        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex items-center justify-between"
-                             :class="orders.filter(o => o.status === 'complaint').length > 0 ? 'border-aura-error bg-red-50' : ''">
+                        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex items-center justify-between transition-colors duration-300"
+                             :class="countComplaints() > 0 ? 'border-aura-error bg-red-50 ring-2 ring-red-100' : ''">
                             <div>
                                 <p class="text-xs font-bold uppercase text-gray-400">Complaints</p>
                                 <p class="text-2xl font-bold" 
-                                   :class="orders.filter(o => o.status === 'complaint').length > 0 ? 'text-aura-error' : 'text-gray-400'" 
-                                   x-text="orders.filter(o => o.status === 'complaint').length"></p>
+                                   :class="countComplaints() > 0 ? 'text-aura-error' : 'text-gray-400'" 
+                                   x-text="countComplaints()"></p>
                             </div>
                             <div class="w-10 h-10 rounded-full flex items-center justify-center"
-                                 :class="orders.filter(o => o.status === 'complaint').length > 0 ? 'bg-aura-error text-white' : 'bg-gray-100 text-gray-400'">
+                                 :class="countComplaints() > 0 ? 'bg-aura-error text-white animate-pulse' : 'bg-gray-100 text-gray-400'">
                                 <i class="ph-fill ph-warning-octagon text-xl"></i>
                             </div>
                         </div>
@@ -247,7 +249,7 @@
                                 </template>
                                 <template x-for="order in orders" :key="order.id">
                                     <tr class="hover:bg-gray-50 transition cursor-pointer" 
-                                        :class="order.status === 'complaint' ? 'bg-red-50 hover:bg-red-100' : ''"
+                                        :class="order.status === 'complaint' ? 'bg-red-50 hover:bg-red-100 border-l-4 border-aura-error' : ''"
                                         @click="viewOrderDetails(order)">
                                         <td class="p-4 text-xs font-mono font-bold text-gray-400" x-text="'#' + order.id"></td>
                                         <td class="p-4 text-xs text-gray-500" x-text="new Date(order.created_at).toLocaleDateString()"></td>
@@ -362,12 +364,12 @@
                     
                     <div class="p-6 overflow-y-auto flex-1 custom-scroll">
                         
-                        <div x-show="selectedOrder.status === 'complaint'" class="bg-red-50 border-l-4 border-aura-error p-4 mb-6 rounded-r">
+                        <div x-show="selectedOrder.status === 'complaint'" class="bg-red-50 border-l-4 border-aura-error p-4 mb-6 rounded-r animate-fade-in">
                             <div class="flex items-start gap-3">
                                 <i class="ph-fill ph-warning-octagon text-aura-error text-2xl mt-0.5"></i>
                                 <div>
                                     <h4 class="font-bold text-red-800">Customer Complaint Received</h4>
-                                    <p class="text-sm text-red-600 mt-1">This user has flagged an issue. Please contact them via WhatsApp immediately to resolve the dispute.</p>
+                                    <p class="text-sm text-red-600 mt-1">This user has flagged an issue. Please contact them via WhatsApp immediately.</p>
                                 </div>
                             </div>
                         </div>
@@ -403,7 +405,7 @@
 
                                 <button x-show="['pending','paid'].includes(selectedOrder.status)" @click="updateStatus(selectedOrder.id, 'cancelled')"
                                         class="text-red-400 hover:text-red-600 px-3 py-2 text-xs font-bold uppercase transition">
-                                    Cancel Order
+                                    Cancel
                                 </button>
                             </div>
                         </div>
@@ -459,60 +461,78 @@
                 currentView: 'products',
                 refreshing: false,
                 
-                // Admin Email Config
                 ADMIN_EMAIL: 'dashwebtr3@gmail.com',
 
-                // Data
+                // SAFETY: Initialize as arrays, NEVER null
                 products: [],
                 orders: [],
                 
-                // State
                 isModalOpen: false,
                 uploading: false,
                 selectedOrder: null,
                 
-                // Form
                 imageFile: null,
                 imagePreview: null,
                 form: { name: '', price: '', description: '', category: 'Tops', badge: '', is_new: false },
 
                 init() {
-                    const sbUrl = 'https://xenosyklkpisszqwibdw.supabase.co';
-                    const sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhlbm9zeWtsa3Bpc3N6cXdpYmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4NTkxNzcsImV4cCI6MjA4NjQzNTE3N30.A_WVC9GRa7USe2DPbzVUWw3TuBHnyImVqBZnzuPJbMw';
-                    this.supabase = supabase.createClient(sbUrl, sbKey);
-                    this.checkAdminAccess();
+                    try {
+                        // 1. Initialize Supabase
+                        const sbUrl = 'https://xenosyklkpisszqwibdw.supabase.co';
+                        const sbKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhlbm9zeWtsa3Bpc3N6cXdpYmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4NTkxNzcsImV4cCI6MjA4NjQzNTE3N30.A_WVC9GRa7USe2DPbzVUWw3TuBHnyImVqBZnzuPJbMw';
+                        this.supabase = supabase.createClient(sbUrl, sbKey);
+                        
+                        // 2. Start Logic
+                        this.checkAdminAccess();
+                    } catch (e) {
+                        console.error('Initialization Error:', e);
+                        alert('System Error: ' + e.message);
+                        this.loading = false;
+                    }
                 },
 
                 async checkAdminAccess() {
-                    const { data: { session } } = await this.supabase.auth.getSession();
-                    this.session = session;
-                    
-                    // SECURITY CHECK
-                    if (session && session.user.email === this.ADMIN_EMAIL) {
-                        this.isAdmin = true;
-                        await this.refreshCurrentView();
-                    } else {
-                        this.isAdmin = false;
-                        if (session) {
-                            // Logged in but WRONG email -> Logout immediately
-                            alert('Unauthorized Access. You are not an admin.');
-                            await this.supabase.auth.signOut();
+                    try {
+                        const { data: { session }, error } = await this.supabase.auth.getSession();
+                        if (error) throw error;
+                        
+                        this.session = session;
+                        
+                        if (session && session.user.email === this.ADMIN_EMAIL) {
+                            this.isAdmin = true;
+                            await this.refreshCurrentView();
+                        } else {
+                            this.isAdmin = false;
+                            if (session) {
+                                await this.supabase.auth.signOut();
+                                alert('Access Denied: You are not the administrator.');
+                            }
                         }
+                    } catch (e) {
+                        console.error('Auth Error:', e);
+                    } finally {
+                        this.loading = false;
                     }
-                    this.loading = false;
                 },
 
                 async refreshCurrentView() {
                     this.refreshing = true;
-                    if (this.currentView === 'products') await this.fetchProducts();
-                    else await this.fetchOrders();
-                    setTimeout(() => this.refreshing = false, 500);
+                    try {
+                        if (this.currentView === 'products') await this.fetchProducts();
+                        else await this.fetchOrders();
+                    } catch (e) {
+                        console.error('Refresh Error:', e);
+                    } finally {
+                        setTimeout(() => this.refreshing = false, 500);
+                    }
                 },
 
                 // --- PRODUCTS ---
                 async fetchProducts() {
-                    const { data } = await this.supabase.from('products').select('*').order('created_at', { ascending: false });
-                    this.products = data || [];
+                    const { data, error } = await this.supabase.from('products').select('*').order('created_at', { ascending: false });
+                    // SAFETY: Use empty array if data is null
+                    this.products = data || []; 
+                    if (error) console.error('Product Fetch Error:', error);
                 },
                 
                 handleImageSelect(e) { 
@@ -524,25 +544,18 @@
                     if (!this.imageFile) return alert('Image is required');
                     this.uploading = true;
                     try {
-                        // 1. Upload Image
                         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}`;
                         const { error: upErr } = await this.supabase.storage.from('product-images').upload(fileName, this.imageFile);
                         if(upErr) throw upErr;
                         
-                        // 2. Get URL
                         const { data: { publicUrl } } = this.supabase.storage.from('product-images').getPublicUrl(fileName);
                         
-                        // 3. Insert Data
-                        const { error: dbErr } = await this.supabase.from('products').insert({
-                            ...this.form,
-                            image: publicUrl
-                        });
+                        const { error: dbErr } = await this.supabase.from('products').insert({ ...this.form, image: publicUrl });
                         if(dbErr) throw dbErr;
 
                         this.closeModal();
                         this.fetchProducts();
                     } catch(e) {
-                        console.error(e);
                         alert('Error saving product: ' + e.message);
                     } finally {
                         this.uploading = false;
@@ -555,15 +568,22 @@
                     this.fetchProducts();
                 },
 
-                // --- ORDERS ---
+                // --- ORDERS (FIXED SAFETY) ---
                 async fetchOrders() {
-                    const { data, error } = await this.supabase
-                        .from('orders')
-                        .select('*, items:order_items(*)')
-                        .order('created_at', { ascending: false });
-                    
-                    if (error) console.error(error);
-                    else this.orders = data;
+                    try {
+                        const { data, error } = await this.supabase
+                            .from('orders')
+                            .select('*, items:order_items(*)')
+                            .order('created_at', { ascending: false });
+                        
+                        if (error) throw error;
+                        
+                        // SAFETY: If data is null, use [], don't crash Alpine
+                        this.orders = data || []; 
+                    } catch (e) {
+                        console.error('Order Fetch Error:', e);
+                        this.orders = []; // Fallback to prevent white screen
+                    }
                 },
 
                 viewOrderDetails(order) {
@@ -571,25 +591,31 @@
                 },
 
                 async updateStatus(orderId, status) {
-                    // Update Supabase
-                    const { error } = await this.supabase.from('orders').update({ 
-                        status: status,
-                        updated_at: new Date() // Important for timer logic
-                    }).eq('id', orderId);
+                    try {
+                        // Note: We update 'updated_at' so the Guarantee Timer knows when it started!
+                        const { error } = await this.supabase.from('orders').update({ 
+                            status: status,
+                            updated_at: new Date() 
+                        }).eq('id', orderId);
 
-                    if (error) {
-                        alert('Error updating status: ' + error.message);
-                    } else {
-                        // Update Local State
+                        if (error) throw error;
+
+                        // Update Local State (Instant UI feedback)
                         this.selectedOrder.status = status;
                         const idx = this.orders.findIndex(o => o.id === orderId);
                         if (idx > -1) this.orders[idx].status = status;
                         
-                        // Close modal if resolved/cancelled to refresh view clearly
+                        // Close modal if resolved
                         if (['completed', 'cancelled'].includes(status)) {
                             this.selectedOrder = null;
                         }
+                    } catch (e) {
+                        alert('Error updating status: ' + e.message);
                     }
+                },
+
+                countComplaints() {
+                    return this.orders.filter(o => o.status === 'complaint').length;
                 },
 
                 // --- UTILS ---
@@ -598,8 +624,7 @@
                 resetForm() { this.imageFile = null; this.imagePreview = null; this.form = { name: '', price: '', description: '', category: 'Tops', badge: '', is_new: false }; },
                 async handleLogout() { await this.supabase.auth.signOut(); window.location.href = 'index.html'; },
                 formatMoney(amount) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumSignificantDigits: 9 }).format(amount); },
-a
-                // Watch for view changes to load data
+
                 initWatchers() {
                     this.$watch('currentView', () => this.refreshCurrentView());
                 }
