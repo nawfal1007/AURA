@@ -42,6 +42,10 @@
         .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #ccc; border-radius: 3px; }
         .custom-scroll::-webkit-scrollbar-thumb:hover { background: #999; }
+        
+        /* Animation */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans h-screen overflow-hidden" x-data="adminApp()">
@@ -88,6 +92,9 @@
                         :class="currentView === 'orders' ? 'bg-white/10 text-white border-l-2 border-aura-accent' : 'text-white/60 hover:bg-white/5 hover:text-white'"
                         class="w-full flex items-center gap-3 px-4 py-3 rounded-r text-sm font-bold transition-all text-left">
                     <i class="ph ph-receipt text-lg"></i> Orders
+                    <span x-show="orders.filter(o => o.status === 'complaint').length > 0" 
+                          class="ml-auto w-5 h-5 bg-aura-error text-white rounded-full text-[10px] flex items-center justify-center"
+                          x-text="orders.filter(o => o.status === 'complaint').length"></span>
                 </button>
 
                 <p class="px-4 text-[10px] uppercase tracking-widest text-white/40 font-bold mb-2 mt-8">System</p>
@@ -128,7 +135,7 @@
 
             <div class="flex-1 overflow-y-auto p-8 custom-scroll">
 
-                <div x-show="currentView === 'products'" class="space-y-6">
+                <div x-show="currentView === 'products'" class="space-y-6 animate-fade-in">
                     <div class="flex justify-between items-center">
                         <div class="relative max-w-xs w-full">
                             <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -184,8 +191,8 @@
                     </div>
                 </div>
 
-                <div x-show="currentView === 'orders'" class="space-y-6" x-cloak>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div x-show="currentView === 'orders'" class="space-y-6 animate-fade-in" x-cloak>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex items-center justify-between">
                             <div>
                                 <p class="text-xs font-bold uppercase text-gray-400">Total Orders</p>
@@ -203,9 +210,22 @@
                         <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex items-center justify-between">
                             <div>
                                 <p class="text-xs font-bold uppercase text-gray-400">Revenue</p>
-                                <p class="text-2xl font-bold text-green-600" x-text="formatMoney(orders.filter(o => o.status !== 'pending').reduce((sum, o) => sum + o.total_price, 0))"></p>
+                                <p class="text-2xl font-bold text-green-600" x-text="formatMoney(orders.filter(o => o.status !== 'pending' && o.status !== 'cancelled' && o.status !== 'complaint').reduce((sum, o) => sum + o.total_price, 0))"></p>
                             </div>
                             <div class="w-10 h-10 bg-green-50 text-green-600 rounded-full flex items-center justify-center"><i class="ph-fill ph-currency-dollar text-xl"></i></div>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 flex items-center justify-between"
+                             :class="orders.filter(o => o.status === 'complaint').length > 0 ? 'border-aura-error bg-red-50' : ''">
+                            <div>
+                                <p class="text-xs font-bold uppercase text-gray-400">Complaints</p>
+                                <p class="text-2xl font-bold" 
+                                   :class="orders.filter(o => o.status === 'complaint').length > 0 ? 'text-aura-error' : 'text-gray-400'" 
+                                   x-text="orders.filter(o => o.status === 'complaint').length"></p>
+                            </div>
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center"
+                                 :class="orders.filter(o => o.status === 'complaint').length > 0 ? 'bg-aura-error text-white' : 'bg-gray-100 text-gray-400'">
+                                <i class="ph-fill ph-warning-octagon text-xl"></i>
+                            </div>
                         </div>
                     </div>
 
@@ -226,7 +246,9 @@
                                     <tr><td colspan="6" class="p-12 text-center text-gray-400 italic">No orders received yet.</td></tr>
                                 </template>
                                 <template x-for="order in orders" :key="order.id">
-                                    <tr class="hover:bg-gray-50 transition cursor-pointer" @click="viewOrderDetails(order)">
+                                    <tr class="hover:bg-gray-50 transition cursor-pointer" 
+                                        :class="order.status === 'complaint' ? 'bg-red-50 hover:bg-red-100' : ''"
+                                        @click="viewOrderDetails(order)">
                                         <td class="p-4 text-xs font-mono font-bold text-gray-400" x-text="'#' + order.id"></td>
                                         <td class="p-4 text-xs text-gray-500" x-text="new Date(order.created_at).toLocaleDateString()"></td>
                                         <td class="p-4">
@@ -235,21 +257,25 @@
                                         </td>
                                         <td class="p-4 text-sm font-bold text-aura-dark" x-text="formatMoney(order.total_price)"></td>
                                         <td class="p-4">
-                                            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider inline-flex items-center gap-1"
+                                            <span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider inline-flex items-center gap-1 border"
                                                   :class="{
-                                                      'bg-yellow-100 text-yellow-800': order.status === 'pending',
-                                                      'bg-green-100 text-green-800': order.status === 'paid',
-                                                      'bg-blue-100 text-blue-800': order.status === 'shipped',
-                                                      'bg-red-100 text-red-800': order.status === 'cancelled'
+                                                      'bg-yellow-50 text-yellow-800 border-yellow-200': order.status === 'pending',
+                                                      'bg-green-50 text-green-800 border-green-200': order.status === 'paid',
+                                                      'bg-blue-50 text-blue-800 border-blue-200': order.status === 'shipped',
+                                                      'bg-purple-50 text-purple-800 border-purple-200': order.status === 'arrived',
+                                                      'bg-red-100 text-red-800 border-red-300': order.status === 'complaint' || order.status === 'cancelled',
+                                                      'bg-gray-100 text-gray-600 border-gray-200': order.status === 'completed'
                                                   }">
                                                 <span class="w-1.5 h-1.5 rounded-full" 
                                                       :class="{
                                                           'bg-yellow-500': order.status === 'pending',
                                                           'bg-green-500': order.status === 'paid',
                                                           'bg-blue-500': order.status === 'shipped',
-                                                          'bg-red-500': order.status === 'cancelled'
+                                                          'bg-purple-500': order.status === 'arrived',
+                                                          'bg-red-500': order.status === 'complaint' || order.status === 'cancelled',
+                                                          'bg-gray-500': order.status === 'completed'
                                                       }"></span>
-                                                <span x-text="order.status"></span>
+                                                <span x-text="order.status.toUpperCase()"></span>
                                             </span>
                                         </td>
                                         <td class="p-4 text-right">
@@ -270,7 +296,7 @@
 
     <div x-show="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4" x-cloak>
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="closeModal()"></div>
-        <div class="bg-white rounded-lg shadow-2xl w-full max-w-lg relative z-10 overflow-hidden flex flex-col max-h-[90vh] animate-fade-in-up">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-lg relative z-10 overflow-hidden flex flex-col max-h-[90vh] animate-fade-in">
             <div class="bg-aura-dark text-white p-4 flex justify-between items-center">
                 <h3 class="font-bold uppercase tracking-widest text-sm">Add New Product</h3>
                 <button @click="closeModal()" class="hover:text-aura-accent"><i class="ph ph-x text-xl"></i></button>
@@ -322,10 +348,11 @@
 
     <div x-show="selectedOrder" class="fixed inset-0 z-50 flex items-center justify-center p-4" x-cloak>
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="selectedOrder = null"></div>
-        <div class="bg-white rounded-lg shadow-2xl w-full max-w-2xl relative z-10 overflow-hidden flex flex-col max-h-[90vh] animate-fade-in-up">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-2xl relative z-10 overflow-hidden flex flex-col max-h-[90vh] animate-fade-in">
             <template x-if="selectedOrder">
                 <div class="h-full flex flex-col">
-                    <div class="bg-aura-dark text-white p-6 flex justify-between items-center">
+                    <div class="bg-aura-dark text-white p-6 flex justify-between items-center" 
+                         :class="selectedOrder.status === 'complaint' ? 'bg-aura-error' : 'bg-aura-dark'">
                         <div>
                             <p class="text-[10px] font-bold uppercase opacity-50 tracking-widest">Order ID</p>
                             <h3 class="font-serif text-2xl font-bold" x-text="'#' + selectedOrder.id"></h3>
@@ -334,14 +361,50 @@
                     </div>
                     
                     <div class="p-6 overflow-y-auto flex-1 custom-scroll">
-                        <div class="bg-gray-50 p-4 rounded border border-gray-200 mb-6 flex justify-between items-center">
-                            <div>
-                                <p class="text-xs font-bold uppercase text-gray-400">Update Status</p>
-                                <p class="font-bold text-aura-dark" x-text="selectedOrder.status.toUpperCase()"></p>
+                        
+                        <div x-show="selectedOrder.status === 'complaint'" class="bg-red-50 border-l-4 border-aura-error p-4 mb-6 rounded-r">
+                            <div class="flex items-start gap-3">
+                                <i class="ph-fill ph-warning-octagon text-aura-error text-2xl mt-0.5"></i>
+                                <div>
+                                    <h4 class="font-bold text-red-800">Customer Complaint Received</h4>
+                                    <p class="text-sm text-red-600 mt-1">This user has flagged an issue. Please contact them via WhatsApp immediately to resolve the dispute.</p>
+                                </div>
                             </div>
-                            <div class="flex gap-2">
-                                <button @click="updateStatus(selectedOrder.id, 'paid')" class="bg-green-100 text-green-700 hover:bg-green-200 border border-green-200 px-3 py-1.5 rounded text-xs font-bold uppercase transition">Mark Paid</button>
-                                <button @click="updateStatus(selectedOrder.id, 'shipped')" class="bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-200 px-3 py-1.5 rounded text-xs font-bold uppercase transition">Mark Shipped</button>
+                        </div>
+
+                        <div class="bg-gray-50 p-4 rounded border border-gray-200 mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <div>
+                                <p class="text-xs font-bold uppercase text-gray-400">Current Status</p>
+                                <p class="font-bold text-lg" 
+                                   :class="selectedOrder.status === 'complaint' ? 'text-aura-error' : 'text-aura-dark'"
+                                   x-text="selectedOrder.status.toUpperCase()"></p>
+                            </div>
+                            
+                            <div class="flex gap-2 flex-wrap justify-end">
+                                <button x-show="selectedOrder.status === 'pending'" @click="updateStatus(selectedOrder.id, 'paid')" 
+                                        class="bg-green-100 text-green-700 hover:bg-green-200 border border-green-200 px-4 py-2 rounded text-xs font-bold uppercase transition">
+                                    Mark Paid
+                                </button>
+                                
+                                <button x-show="selectedOrder.status === 'paid'" @click="updateStatus(selectedOrder.id, 'shipped')" 
+                                        class="bg-blue-100 text-blue-700 hover:bg-blue-200 border border-blue-200 px-4 py-2 rounded text-xs font-bold uppercase transition">
+                                    Mark Shipped
+                                </button>
+                                
+                                <button x-show="selectedOrder.status === 'shipped'" @click="updateStatus(selectedOrder.id, 'arrived')" 
+                                        class="bg-purple-100 text-purple-700 hover:bg-purple-200 border border-purple-200 px-4 py-2 rounded text-xs font-bold uppercase transition flex items-center gap-2">
+                                    <i class="ph-fill ph-package"></i> Mark Arrived
+                                </button>
+
+                                <button x-show="selectedOrder.status === 'complaint'" @click="updateStatus(selectedOrder.id, 'completed')" 
+                                        class="bg-gray-800 text-white hover:bg-gray-700 px-4 py-2 rounded text-xs font-bold uppercase transition flex items-center gap-2 shadow-lg">
+                                    <i class="ph-fill ph-check-circle"></i> Mark Resolved
+                                </button>
+
+                                <button x-show="['pending','paid'].includes(selectedOrder.status)" @click="updateStatus(selectedOrder.id, 'cancelled')"
+                                        class="text-red-400 hover:text-red-600 px-3 py-2 text-xs font-bold uppercase transition">
+                                    Cancel Order
+                                </button>
                             </div>
                         </div>
 
@@ -349,7 +412,7 @@
                             <div>
                                 <h4 class="font-bold text-xs uppercase text-gray-400 mb-2 border-b pb-1">Customer</h4>
                                 <p class="font-bold text-gray-800 text-lg" x-text="selectedOrder.customer_name"></p>
-                                <a :href="'https://wa.me/' + selectedOrder.customer_whatsapp" target="_blank" class="text-sm text-green-600 hover:underline flex items-center gap-1 mt-1">
+                                <a :href="'https://wa.me/' + selectedOrder.customer_whatsapp" target="_blank" class="text-sm text-green-600 hover:underline flex items-center gap-1 mt-1 font-bold bg-green-50 w-fit px-2 py-1 rounded border border-green-100">
                                     <i class="ph-fill ph-whatsapp-logo"></i> <span x-text="selectedOrder.customer_whatsapp"></span>
                                 </a>
                             </div>
@@ -508,12 +571,24 @@
                 },
 
                 async updateStatus(orderId, status) {
-                    const { error } = await this.supabase.from('orders').update({ status }).eq('id', orderId);
-                    if (error) alert('Error updating status');
-                    else {
+                    // Update Supabase
+                    const { error } = await this.supabase.from('orders').update({ 
+                        status: status,
+                        updated_at: new Date() // Important for timer logic
+                    }).eq('id', orderId);
+
+                    if (error) {
+                        alert('Error updating status: ' + error.message);
+                    } else {
+                        // Update Local State
                         this.selectedOrder.status = status;
                         const idx = this.orders.findIndex(o => o.id === orderId);
                         if (idx > -1) this.orders[idx].status = status;
+                        
+                        // Close modal if resolved/cancelled to refresh view clearly
+                        if (['completed', 'cancelled'].includes(status)) {
+                            this.selectedOrder = null;
+                        }
                     }
                 },
 
@@ -523,7 +598,7 @@
                 resetForm() { this.imageFile = null; this.imagePreview = null; this.form = { name: '', price: '', description: '', category: 'Tops', badge: '', is_new: false }; },
                 async handleLogout() { await this.supabase.auth.signOut(); window.location.href = 'index.html'; },
                 formatMoney(amount) { return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumSignificantDigits: 9 }).format(amount); },
-
+a
                 // Watch for view changes to load data
                 initWatchers() {
                     this.$watch('currentView', () => this.refreshCurrentView());
