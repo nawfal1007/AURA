@@ -55,6 +55,10 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Smooth Fade for Images */
+        .fade-in-image { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 
@@ -98,6 +102,12 @@
             </div>
 
             <div class="flex items-center justify-end gap-6 w-1/3">
+                <template x-if="isAdmin">
+                    <a href="admin.html" class="hidden md:flex items-center gap-2 bg-aura-dark text-aura-accent px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest shadow-sm hover:bg-aura-accent hover:text-aura-dark transition">
+                        <i class="ph-fill ph-crown"></i> Admin
+                    </a>
+                </template>
+
                 <a href="loginpage.html" x-show="!session" class="hidden lg:block hover:text-aura-accent transition"><i class="ph ph-user text-xl"></i></a>
                 
                 <div x-show="session" class="hidden lg:flex flex-col items-end leading-none" x-cloak>
@@ -147,19 +157,28 @@
                 <p class="text-xs text-gray-400">Try changing filters or check back later.</p>
             </div>
 
-            <div x-show="!productsLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
+            <div x-show="!productsLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16" x-cloak>
                 <template x-for="product in filteredProducts" :key="product.id">
-                    <div class="group relative flex flex-col h-full">
-                        <div class="relative overflow-hidden bg-gray-200 aspect-[3/4] mb-6">
+                    <div class="group relative flex flex-col h-full fade-in-image">
+                        
+                        <a :href="'products.html?id=' + product.id" class="block relative overflow-hidden bg-gray-200 aspect-[3/4] mb-6 cursor-pointer">
                             <img :src="product.image" :alt="product.name" loading="lazy" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
                             
-                            <div class="absolute top-4 left-4 flex flex-col gap-2">
+                            <div class="absolute top-4 left-4 flex flex-col gap-2 z-10">
                                 <span x-show="product.badge" class="bg-white/95 backdrop-blur text-aura-dark text-[10px] font-bold uppercase tracking-widest px-3 py-1 shadow-sm" x-text="product.badge"></span>
                                 <span x-show="product.is_new" class="bg-aura-dark text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1 w-max shadow-sm">New</span>
                             </div>
 
+                            <template x-if="isAdmin">
+                                <button @click.prevent="window.location.href='admin.html'" 
+                                        class="absolute top-4 right-4 z-20 w-8 h-8 bg-aura-dark text-aura-accent rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition border border-white/20"
+                                        title="Admin Quick Edit">
+                                    <i class="ph-fill ph-pencil-simple"></i>
+                                </button>
+                            </template>
+
                             <div class="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-gradient-to-t from-black/80 to-transparent">
-                                <div class="bg-white p-4 shadow-lg">
+                                <div class="bg-white p-4 shadow-lg" @click.prevent>
                                     <p class="text-[10px] uppercase font-bold text-gray-400 mb-2">Quick Add</p>
                                     <div class="flex justify-between gap-2">
                                         <template x-for="size in ['S', 'M', 'L']">
@@ -171,12 +190,14 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
 
                         <div class="flex-1 flex flex-col">
                             <div class="flex justify-between items-start mb-2">
                                 <div>
-                                    <h3 class="font-serif text-lg text-aura-dark group-hover:text-aura-accent transition-colors cursor-pointer" x-text="product.name"></h3>
+                                    <a :href="'products.html?id=' + product.id">
+                                        <h3 class="font-serif text-lg text-aura-dark group-hover:text-aura-accent transition-colors cursor-pointer" x-text="product.name"></h3>
+                                    </a>
                                     <p class="text-[11px] text-gray-500 mt-1 uppercase tracking-wide" x-text="product.category"></p>
                                 </div>
                                 <span class="font-bold text-aura-dark text-sm font-serif whitespace-nowrap" x-text="formatMoney(product.price)"></span>
@@ -271,7 +292,7 @@
                                     <p class="font-bold" x-text="formatMoney(cartTotal)"></p>
                                 </div>
                                 <div class="mt-6">
-                                    <a href="#" class="flex items-center justify-center bg-aura-dark px-6 py-4 text-white hover:bg-aura-accent transition uppercase tracking-widest text-xs font-bold rounded-sm shadow-lg">Checkout</a>
+                                    <a href="checkout.html" class="flex items-center justify-center bg-aura-dark px-6 py-4 text-white hover:bg-aura-accent transition uppercase tracking-widest text-xs font-bold rounded-sm shadow-lg">Checkout</a>
                                 </div>
                             </div>
                         </div>
@@ -291,6 +312,10 @@
             <nav class="flex flex-col space-y-6 text-xl font-serif text-aura-dark">
                 <a href="index.html" class="border-b border-aura-dark/10 pb-4">Home</a>
                 <a href="#" class="border-b border-aura-dark/10 pb-4 text-aura-accent font-bold">All Products</a>
+                <a href="profile.html" x-show="session" class="border-b border-aura-dark/10 pb-4">My Orders</a>
+                <template x-if="isAdmin">
+                    <a href="admin.html" class="border-b border-aura-dark/10 pb-4 text-aura-error">Admin Console</a>
+                </template>
             </nav>
         </div>
     </div>
@@ -301,18 +326,22 @@
                 /* SUPABASE */
                 supabase: null,
                 session: null,
+                isAdmin: false,
 
                 /* UI STATES */
                 mobileMenuOpen: false, 
                 cartOpen: false,
                 cartLoading: false,
                 productsLoading: true,
-                activeFilter: 'All', // Default filter
+                activeFilter: 'All',
 
                 /* DATA */
                 products: [], // Fetched from DB
                 cart: [],
                 toasts: [],
+
+                /* ADMIN CONFIG */
+                ADMIN_EMAIL: 'dashwebtr3@gmail.com',
 
                 /* COMPUTED */
                 get filteredProducts() {
@@ -363,9 +392,13 @@
                     }
                 },
 
-                /* AUTH & CART SYNC (Same as Index) */
+                /* AUTH & CART SYNC */
                 async handleSessionChange(session) {
                     this.session = session;
+                    
+                    // ADMIN CHECK
+                    this.isAdmin = session && session.user.email === this.ADMIN_EMAIL;
+
                     if (session) {
                         await this.syncGuestCartToCloud();
                         await this.fetchCloudCart();
